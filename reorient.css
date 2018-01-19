@@ -22,7 +22,15 @@ body {
 .overlay {
     display: none;
 }
-#tools, #saveNifti, #loadSelection, #saveSelection, #loadMatrix, #saveMatrix, #resetMatrix {
+#tools,
+#saveNifti,
+#loadSelection,
+#saveSelection,
+#loadMatrix,
+#appendMatrix,
+#saveMatrix,
+#resetMatrix,
+#info {
     display: none;
 }
 #buttons {

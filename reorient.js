@@ -30,6 +30,7 @@ MUI.chose($('#tools'), function(option) {
 MUI.push($('#loadNifti'), loadNifti);
 MUI.push($('#saveNifti'), saveNifti);
 MUI.push($('#loadMatrix'), loadMatrix);
+MUI.push($('#appendMatrix'), appendMatrix);
 MUI.push($('#saveMatrix'), saveMatrix);
 MUI.push($('#loadSelection'), loadSelection);
 MUI.push($('#saveSelection'), saveSelection);
@@ -100,7 +101,7 @@ function init(file) {
         */
 
         $('span').show();
-        $('#tools, #saveNifti, #loadSelection, #saveSelection, #loadMatrix, #saveMatrix, #resetMatrix').show();
+        $('#tools, #saveNifti, #loadSelection, #saveSelection, #loadMatrix, #appendMatrix, #saveMatrix, #resetMatrix, #info').show();
         $('#buttons').removeClass('init');
         $('#loadNifti').removeClass('mui-no-border');
 
@@ -125,31 +126,9 @@ function printInfo() {
     var str1=matrix2str(m2v);
     var str3=matrix2str(v2m);
     var str2=`(${cropBox.min.x},${cropBox.min.y},${cropBox.min.z})\n(${cropBox.max.x},${cropBox.max.y},${cropBox.max.z})`;
-    var info=[
-        '<span>World to voxel matrix</span>',
-        '<pre>',
-        str1,
-        '</pre>',
-        'Voxel to world matrix',
-        '<pre>',
-        str3,
-        '</pre>',
-        'Crop box',
-        '<pre>',
-        str2,
-        '</pre>'
-/*
-        '<br />',
-        'The mm coordinate (0,0,0) maps to voxel coordinates:',
-        mv.mri.multMatVec(m2v,[0,0,0,1]).map(v=>v.toPrecision(3)),
-        'Map of limit voxels to mm:',
-        '(0,0,0) -> ' + mv.mri.multMatVec(v2m,[0,0,0,1]).map(v=>v.toPrecision(3)),
-        '('+mv.mri.dim[0]+',0,0) -> ' + mv.mri.multMatVec(v2m,[mv.mri.dim[0],0,0,1]).map(v=>v.toPrecision(3)),
-        '(0,'+mv.mri.dim[1]+',0) -> ' + mv.mri.multMatVec(v2m,[0,mv.mri.dim[1],0,1]).map(v=>v.toPrecision(3)),
-        '(0,0,'+mv.mri.dim[2]+') -> ' + mv.mri.multMatVec(v2m,[0,0,mv.mri.dim[2],1]).map(v=>v.toPrecision(3))
-*/
-    ];
-    $('#info').html(info.map(o=>o).join('</br>'));
+    $('#info1').html(`<pre>${str1}`);
+    $('#info2').html(`<pre>${str3}`);
+    $('#info3').html(`<pre>${str2}`);
 }
 
 function alpha(a) {
@@ -327,7 +306,7 @@ function mouseUp(view, e) {
 }
 
 function matrix2str(matrix) {
-    var str=matrix.map(row=>row.map(value=>value.toPrecision(2))).join('\n');
+    var str=matrix.map(row=>row.map(value=>((value>=0)?' ':'')+value.toPrecision(2))).join('\n');
     return str;
 }
 
@@ -432,6 +411,38 @@ function loadMatrix() {
             let str = e.target.result;
             let arr = str.split('\n');
             let v2m = arr.map((o) => o.split(' ').map((oo)=>parseFloat(oo))).slice(0,4);
+            mv.mri.NiiHdrLE.fields.srow_x[0] = v2m[0][0]
+            mv.mri.NiiHdrLE.fields.srow_x[1] = v2m[0][1]
+            mv.mri.NiiHdrLE.fields.srow_x[2] = v2m[0][2]
+            mv.mri.NiiHdrLE.fields.srow_x[3] = v2m[0][3]
+            mv.mri.NiiHdrLE.fields.srow_y[0] = v2m[1][0]
+            mv.mri.NiiHdrLE.fields.srow_y[1] = v2m[1][1]
+            mv.mri.NiiHdrLE.fields.srow_y[2] = v2m[1][2]
+            mv.mri.NiiHdrLE.fields.srow_y[3] = v2m[1][3]
+            mv.mri.NiiHdrLE.fields.srow_z[0] = v2m[2][0]
+            mv.mri.NiiHdrLE.fields.srow_z[1] = v2m[2][1]
+            mv.mri.NiiHdrLE.fields.srow_z[2] = v2m[2][2]
+            mv.mri.NiiHdrLE.fields.srow_z[3] = v2m[2][3]
+            mv.mri.MatrixMm2Vox = mv.mri.mm2vox();
+            multiplyAndUpdate(eye());
+            mv.draw();
+            printInfo();
+        };
+        reader.readAsText(file);
+    }
+    input.click();
+}
+function appendMatrix() {
+    var input=document.createElement("input");
+    input.type="file";
+    input.onchange=function(e){
+        var file=this.files[0];
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            let str = e.target.result;
+            let arr = str.split('\n');
+            let newV2M = arr.map((o) => o.split(' ').map((oo)=>parseFloat(oo))).slice(0,4);
+            let v2m = mv.mri.multMatMat(mv.mri.MatrixVox2Mm, newV2M);
             mv.mri.NiiHdrLE.fields.srow_x[0] = v2m[0][0]
             mv.mri.NiiHdrLE.fields.srow_x[1] = v2m[0][1]
             mv.mri.NiiHdrLE.fields.srow_x[2] = v2m[0][2]
