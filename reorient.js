@@ -533,9 +533,9 @@ function saveNifti() {
     let rect = mv.views[0].canvas.getBoundingClientRect();
     let pixdim = mv.dimensions.absolute.pixdim;
     let dim = [
-        Math.ceil((cropBox.max.x - cropBox.min.x)*pixdim[0]),
-        Math.ceil((cropBox.max.y - cropBox.min.y)*pixdim[1]),
-        Math.ceil((cropBox.max.z - cropBox.min.z)*pixdim[2])
+        Math.ceil(cropBox.max.x - cropBox.min.x),//*pixdim[0]),
+        Math.ceil(cropBox.max.y - cropBox.min.y),//*pixdim[1]),
+        Math.ceil(cropBox.max.z - cropBox.min.z)//*pixdim[2])
     ];
 
     console.log("Crop volume dimensions:", dim);
@@ -545,14 +545,13 @@ function saveNifti() {
     let x, y, z;
     let i, s, w;
     let ijk;
-    let n = 0;
     for(i=0;i<dim[0];i++) {
         for(j=0;j<dim[1];j++) {
             for(k=0;k<dim[2];k++) {
                 w = [
-                    cropBox.min.x + i/pixdim[0],
-                    cropBox.min.y + j/pixdim[1],
-                    cropBox.min.z + k/pixdim[2]
+                    (cropBox.min.x + i)*pixdim[0],
+                    (cropBox.min.y + j)*pixdim[1],
+                    (cropBox.min.z + k)*pixdim[2]
                 ];
                 val = mv.A2Value(w);
                 data[k*dim[1]*dim[0] + j*dim[0] + i] = val;
@@ -560,12 +559,11 @@ function saveNifti() {
         }
     }
     let v2m = [
-        [pixdim[0], 0, 0, cropBox.min.x],
-        [0, pixdim[1], 0, cropBox.min.y],
-        [0, 0, pixdim[2], cropBox.min.z],
+        [pixdim[0], 0, 0, cropBox.min.x*pixdim[0]],
+        [0, pixdim[1], 0, cropBox.min.y*pixdim[1]],
+        [0, 0, pixdim[2], cropBox.min.z*pixdim[2]],
         [0,0,0,1]
     ];
-    console.log(`${n} out of ${dim[0]*dim[1]*dim[2]} voxels mapped outside the original volume`);
     let niigz = mv.mri.createNifti(dim, pixdim, v2m, data);
     let name = prompt("Save selection as...", "reoriented.nii.gz");
     if(name !== null) {
