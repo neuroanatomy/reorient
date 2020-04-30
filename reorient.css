@@ -1,26 +1,26 @@
 body {
-    background: #222;
+  background: #222;
 }
 #viewer {
-    display: inline-block;
-    border: thin solid black;
+  display: inline-block;
+  border: thin solid black;
 }
 #3dcontainer {
-    position: relative;
-    display: inline-block;
-    padding: 20px;
+  position: relative;
+  display: inline-block;
+  padding: 20px;
 }
 #miny {
-    transform: translate( -100% , -100%);
+  transform: translate( -100% , -100%);
 }
 #maxy {
-    transform: translate( -100% , 0);
+  transform: translate( -100% , 0);
 }
 #maxx {
-    transform: translate( -100% , 0);
+  transform: translate( -100% , 0);
 }
 .overlay {
-    display: none;
+  display: none;
 }
 #tools,
 #saveNifti,
@@ -31,17 +31,17 @@ body {
 #saveMatrix,
 #resetMatrix,
 #info {
-    display: none;
+  display: none;
 }
 #buttons {
-    width: 200px;
+  width: 200px;
 }
 #buttons.init {
-    position: absolute;
-    top:50%;
-    left:50%;
-    transform: translate( -50%, -50% );
-    text-align: center;
-    width: auto;
+  position: absolute;
+  top:50%;
+  left:50%;
+  transform: translate( -50%, -50% );
+  text-align: center;
+  width: auto;
 }
 

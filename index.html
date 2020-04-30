@@ -1,240 +1,251 @@
 <html>
+  <!-- Do not add doctype here, it breaks the css -->
+  <head>
+    <title>Reorient</title>
+  </head>
 
-<body>
+  <body>
 
-<!--
-<img src="resources/picts/Helicopter-upside-down.jpg" style="position:absolute;width:100%;height:100%;-webkit-filter:hue-rotate(90deg)"/>
--->
+    <style>
+      #menu {
+        float: right;
+        /* margin-top: 10px; */
+        margin-right: 10px;
+        display: inline-block;
+      }
+      #menu img {
+        margin-left: 15px;
+      }
+      /*
+      #info {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 14px;
+        font-weight: 200;
+        color:white;
+        padding-top:10px;
+      }
+      #tools {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 14px;
+        font-weight: 200;
+      }
+      #loadMatrix, #saveMatrix, #loadSelection, #saveSelection, #resetMatrix, #saveNifti {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 14px;
+        font-weight: 200;
+      }
+      */
+      .mui {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 14px;
+        font-weight: 200;
+      }
+      pre {
+        font-family: 'Roboto Mono', monospace;
+        font-size: 14px;
+        font-weight: 100;
+        color: white;
+      }
+      img.button {
+        width: 0.9rem;
+        height: 0.9rem;
+        margin: 8px 2px;
+        vertical-align: middle;
+        cursor: pointer;
+      }
+      img.button:hover {
+        opacity: 0.5;
+      }
+      img.icon {
+        width: 1rem;
+        height: 1rem;
+        margin: 4px 2px;
+        vertical-align: middle;
+        cursor: pointer;
+      }
+    </style>
 
-<style>
-#menu {
-    float:right;
-    /* margin-top: 10px; */
-    margin-right: 10px;
-    display: inline-block;    
-}
-#menu img {
-     margin-left: 15px;
-}
-/*#info {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 14px;
-    font-weight: 200;
-    color:white;
-    padding-top:10px;
-}
-#tools {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 14px;
-    font-weight: 200;
-}
-#loadMatrix, #saveMatrix, #loadSelection, #saveSelection, #resetMatrix, #saveNifti {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 14px;
-    font-weight: 200;
-}
-*/
-.mui {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 14px;
-    font-weight: 200;
-}
-pre {
-    font-family: 'Roboto Mono', monospace;
-    font-size: 14px;
-    font-weight: 100;
-    color:white;
-}
-img.button {
-    width:0.9rem;
-    height:0.9rem;
-    margin:8px 2px;
-    vertical-align:middle;
-    cursor:pointer;
-}
-img.button:hover {
-    opacity:0.5;
-}
-img.icon {
-    width:1rem;
-    height:1rem;
-    margin:4px 2px;
-    vertical-align:middle;
-    cursor:pointer;
-}
-</style>
+    <style>
+      .box_uploading,
+      .box_error {
+        display: none;
+      }
+      .box {
+        position: relative;
+        color: white;
+        outline: 2px dashed white;
+        outline-offset: -10px;
+        width: 500px;
+        padding: 100px 20px;
+        text-align: center;
+        font-family: 'Roboto Mono', monospace;
+        font-size: 14px;
+        font-weight: 100;
+      }
+      .box.is-dragover {
+        background-color: #333;
+      }
+      .box.is-uploading .box_input {
+        visibility: hidden;
+      }
+      .box.is-uploading .box_uploading {
+        display: block;
+      }
+      .box_icon {
+        margin-bottom: 20px;
+        fill: white;
+      }
+      .box.is-uploading .box_uploading,
+      .box.is-error .box_error {
+        display: block;
+        position: absolute;
+        top: 50%;
+        right: 0;
+        left: 0;
+        transform: translateY( -50% );
+      }
+      .box_uploading {
+        font-style: italic;
+      }
 
+      .box {
+        display: none;
+      }
+      .init .box {
+        display: block;
+      }
+    </style>
 
-<style>
-.box_uploading,
-.box_error {
-    display: none;
-}
-.box {
-    position: relative;
-    color: white;
-    outline: 2px dashed white;
-    outline-offset: -10px;
-    width:500px;
-    padding: 100px 20px;
-    text-align: center;
-    font-family: 'Roboto Mono', monospace;
-    font-size: 14px;
-    font-weight: 100;
-}
-.box.is-dragover {
-    background-color: #333;
-}
-.box.is-uploading .box_input {
-    visibility: hidden;
-}
-.box.is-uploading .box_uploading {
-    display: block;
-}
-.box_icon {
-    margin-bottom: 20px;
-    fill: white;
-}
-.box.is-uploading .box_uploading,
-.box.is-error .box_error {
-    display: block;
-    position: absolute;
-    top: 50%;
-    right: 0;
-    left: 0;
-    transform: translateY( -50% );
-}
-.box_uploading {
-    font-style: italic;
-}
-
-.box {
-    display: none;
-}
-.init .box {
-    display: block;
-}
-</style>
-
-<div id="header">
-    <!-- Top-right menu bar -->
-    <div id="menu">
+    <div id="header">
+      <!-- Top-right menu bar -->
+      <div id="menu">
         <img id="doc" class="button" title="documentation" src='img/doc.svg'/>
-        <a href="https://github.com/r03ert0/reorient/issues" target="_blank"><img id="bug" class="button" title="report a bug" src='img/bug.svg'/></a>
-        <a href="https://github.com/r03ert0/reorient" target="_blank"><img id="github" class="button" title="join our github project" style='width:15px;height:15px' src='img/github.svg'/></a>
-    </div>
+        <a href="https://github.com/neuroanatomy/reorient/issues" target="_blank"><img id="bug" class="button" title="report a bug" src='img/bug.svg'/></a>
+        <a href="https://github.com/neuroanatomy/reorient" target="_blank"><img id="github" class="button" title="join our github project" style='width:15px;height:15px' src='img/github.svg'/></a>
+      </div>
 
-    <!-- Small left-top logo -->
-    <div style="display:inline-block;margin:10px">
+      <!-- Small left-top logo -->
+      <div style="display:inline-block;margin:10px">
         <a href='/' style="text-decoration:none">
-            <img style='height:28px;vertical-align:middle' src='img/reorient-logo.svg'/>
+          <img style='height:28px;vertical-align:middle' src='img/reorient-logo.svg'/>
         </a>
+      </div>
     </div>
-</div>
 
-<div style='display: flex'>
-    <div id='panel-left' style='flex:0 0 220px'>
+    <div style='display: flex'>
+      <div id='panel-left' style='flex:0 0 220px'>
 
         <!-- Tools -->
         <div id='tools' class='mui-chose' style='width:200px'>
-            <div class='mui mui-pressed' title='Translate' style='padding:1.2% 0'>
-                Translate
-            </div>
-            <div class='mui' title='Rotate' style='padding:1.2% 0'>
-                Rotate
-            </div>
-            <div class='mui' title='Select' style='padding:1.2% 0'>
-                Select
-            </div>
+          <div class='mui mui-pressed' title='Translate' style='padding:1.2% 0'>
+            Translate
+          </div>
+          <div class='mui' title='Rotate' style='padding:1.2% 0'>
+            Rotate
+          </div>
+          <div class='mui' title='Select' style='padding:1.2% 0'>
+            Select
+          </div>
         </div>
         <br />
 
         <!-- Buttons -->
         <div id='buttons' class='init' style='background:#222'>
 
-            <!-- Open file -->
-            <div class='box'>
-                <div class="box_input">
-                    <svg class="box_icon" xmlns="http://www.w3.org/2000/svg" width="50" height="43" viewBox="0 0 50 43">
-                        <path d="M48.4 26.5c-.9 0-1.7.7-1.7 1.7v11.6h-43.3v-11.6c0-.9-.7-1.7-1.7-1.7s-1.7.7-1.7 1.7v13.2c0 .9.7 1.7 1.7 1.7h46.7c.9 0 1.7-.7 1.7-1.7v-13.2c0-1-.7-1.7-1.7-1.7zm-24.5 6.1c.3.3.8.5 1.2.5.4 0 .9-.2 1.2-.5l10-11.6c.7-.7.7-1.7 0-2.4s-1.7-.7-2.4 0l-7.1 8.3v-25.3c0-.9-.7-1.7-1.7-1.7s-1.7.7-1.7 1.7v25.3l-7.1-8.3c-.7-.7-1.7-.7-2.4 0s-.7 1.7 0 2.4l10 11.6z"></path>
-                    </svg>
-                    <br />
-                    <strong id='loadNifti' class='mui mui-push mui-no-border' style='font-weight:500;font-size:16px'>Choose</strong> a <pre style="display:inline-block">.nii.gz</pre> file or drag it here.
-                </div>
-                <div class="box_uploading">Uploading&hellip;</div>
-                <div class="box_error">Error! <span></span>.</div>
+          <!-- Open file -->
+          <div class='box'>
+            <div class="box_input">
+              <svg class="box_icon" xmlns="http://www.w3.org/2000/svg" width="50" height="43" viewBox="0 0 50 43">
+                <path d="M48.4 26.5c-.9 0-1.7.7-1.7 1.7v11.6h-43.3v-11.6c0-.9-.7-1.7-1.7-1.7s-1.7.7-1.7 1.7v13.2c0 .9.7 1.7 1.7 1.7h46.7c.9 0 1.7-.7 1.7-1.7v-13.2c0-1-.7-1.7-1.7-1.7zm-24.5 6.1c.3.3.8.5 1.2.5.4 0 .9-.2 1.2-.5l10-11.6c.7-.7.7-1.7 0-2.4s-1.7-.7-2.4 0l-7.1 8.3v-25.3c0-.9-.7-1.7-1.7-1.7s-1.7.7-1.7 1.7v25.3l-7.1-8.3c-.7-.7-1.7-.7-2.4 0s-.7 1.7 0 2.4l10 11.6z"></path>
+              </svg>
+              <br />
+              <strong id='loadNifti' class='mui mui-push mui-no-border' style='font-weight:500;font-size:16px'>Choose</strong> a <pre style="display:inline-block">.nii.gz</pre> file or drag it here.
             </div>
+            <div class="box_uploading">Uploading&hellip;</div>
+            <div class="box_error">Error! <span></span>.</div>
+          </div>
 
-            <!--<div id='loadNifti' class='mui mui-push mui-no-border'>Load Nifti</div>-->
-            <div id='loadMatrix' class='mui mui-push' style='padding:1.2% 0'>Load New Rotation Matrix</div>
-            <div id='appendMatrix' class='mui mui-push' style='padding:1.2% 0'>Append Rotation Matrix</div>
-            <div id='saveMatrix' class='mui mui-push' style='padding:1.2% 0'>Save Rotation Matrix</div>
-            <div id='loadSelection' class='mui mui-push' style='padding:1.2% 0'>Load Selection Box</div>
-            <div id='saveSelection' class='mui mui-push' style='padding:1.2% 0'>Save Selection Box</div>
-            <div id='resetMatrix' class='mui mui-push' style='padding:1.2% 0'>Reset Matrix</div>
-            <div id='saveNifti' class='mui mui-push' style='padding:1.2% 0'>Save Nifti</div>
+          <!--<div id='loadNifti' class='mui mui-push mui-no-border'>Load Nifti</div>-->
+          <div id='loadMatrix' class='mui mui-push' style='padding:1.2% 0'>Load New Rotation Matrix</div>
+          <div id='appendMatrix' class='mui mui-push' style='padding:1.2% 0'>Append Rotation Matrix</div>
+          <div id='saveMatrix' class='mui mui-push' style='padding:1.2% 0'>Save Rotation Matrix</div>
+          <div id='loadSelection' class='mui mui-push' style='padding:1.2% 0'>Load Selection Box</div>
+          <div id='saveSelection' class='mui mui-push' style='padding:1.2% 0'>Save Selection Box</div>
+          <div id='resetMatrix' class='mui mui-push' style='padding:1.2% 0'>Reset Matrix</div>
+          <div id='saveNifti' class='mui mui-push' style='padding:1.2% 0'>Save Nifti</div>
         </div>
 
         <!-- Information -->
         <div id='info'>
-            <span class='mui mui-label'>World to voxel matrix</span>
-            <div id='info1'></div>
-            <span class='mui mui-label'>Voxel to world matrix</span>
-            <div id='info2'></div>
-            <span class='mui mui-label'>Crop box</span>
-            <div id='info3'></div>
+          <span class='mui mui-label'>World to voxel matrix</span>
+          <div id='info1'></div>
+          <span class='mui mui-label'>Voxel to world matrix</span>
+          <div id='info2'></div>
+          <span class='mui mui-label'>Crop box</span>
+          <div id='info3'></div>
         </div>
 
-    </div>
+      </div>
 
-    <div id='panel-right' style='flex:1'>
+      <div id='panel-right' style='flex:1'>
         <div id='viewer1'>
         </div>
         <div id='viewer2'>
         </div>
         <div id='viewer3'>
         </div>
+      </div>
     </div>
-</div>
 
-<script src='http://localhost/libs/jquery/3.1.1/jquery.min.js'></script>
-<script src='http://localhost/mriviewerjs/mriviewer.js'></script>
-<script src='http://localhost/muijs/mui.js'></script>
-<link rel="stylesheet" type="text/css" href="http://localhost/muijs/mui.css" />
-<link rel="stylesheet" type="text/css" href="reorient.css" />
-<link href='https://fonts.googleapis.com/css?family=Roboto+Mono:100,500' rel='stylesheet'>
-<link href="https://fonts.googleapis.com/css?family=Montserrat:200" rel="stylesheet">
-<script src='reorient.js'></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.1.1/dist/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="http://localhost/libs/jquery/3.1.1/jquery.min.js"><\/script>')</script>
 
-<script>
-var file = false;
-$('.box')
-.on('drag dragstart dragend dragover dragenter dragleave drop', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-})
-.on('dragover dragenter', function() {
-    $('.box').addClass('is-dragover');
-})
-.on('dragleave dragend drop', function() {
-    $('.box').removeClass('is-dragover');
-})
-.on('drop', function(e) {
-    file = e.originalEvent.dataTransfer.files;
-    if ($('.box').hasClass('is-uploading')) {
+    <script src='https://cdn.jsdelivr.net/gh/r03ert0/mriviewerjs@v0.1.2/mriviewer.js'></script>
+    <script>window.MRIViewer || document.write('<script src="http://localhost/mriviewerjs/mriviewer.js"><\/script>')</script>
 
-        return false;
-    }
-    $('.box').addClass('is-uploading').removeClass('is-error');
-    e.preventDefault();
-    if (file) {
-        console.log(file[0]);
-        init(file[0]);
-    }
-});
-</script>
+    <!-- <script src="http://localhost/mriviewerjs/mriviewer.js"></script> -->
 
-</body>
+    <script src='https://cdn.jsdelivr.net/gh/r03ert0/muijs/mui.js'></script>
+    <script>window.MUI || document.write('<script src="http://localhost/muijs/mui.js"><\/script>')</script>
+
+    <!-- <link rel="stylesheet" type="text/css" href="http://localhost/muijs/mui.css" /> -->
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/r03ert0/muijs/mui.css" />
+    <link rel="stylesheet" type="text/css" href="reorient.css" />
+    <link href='https://fonts.googleapis.com/css?family=Roboto+Mono:100,500' rel='stylesheet' />
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:200" rel="stylesheet" />
+
+    <script src='reorient.js'></script>
+
+    <script>
+      var file = false;
+      $('.box')
+      .on('drag dragstart dragend dragover dragenter dragleave drop', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+      })
+      .on('dragover dragenter', function() {
+        $('.box').addClass('is-dragover');
+      })
+      .on('dragleave dragend drop', function() {
+        $('.box').removeClass('is-dragover');
+      })
+      .on('drop', function(e) {
+        file = e.originalEvent.dataTransfer.files;
+        if ($('.box').hasClass('is-uploading')) {
+
+          return false;
+        }
+        $('.box').addClass('is-uploading').removeClass('is-error');
+        e.preventDefault();
+        if (file) {
+          console.log(file[0]);
+          init(file[0]);
+        }
+      });
+    </script>
+
+  </body>
 </html>
 
 
