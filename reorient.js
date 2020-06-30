@@ -492,6 +492,7 @@ function init(file) {
     //    mriPath: 'data/sloth_bear.nii.gz',
     //    mriPath: 'data/ApelleCebusApell_f4b9.nii.gz',
     mriFile: file,
+    space: "world",
     views: [
       { elem: $('#viewer1').get(0), plane: 'sag' },
       { elem: $('#viewer2').get(0), plane: 'cor' },
