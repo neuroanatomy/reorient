@@ -6,10 +6,11 @@ jobs:
     steps:
       - checkout
       - run: npm install
+      - run: npm install mocha
       - run: npm i http-server
       - run:
           name: Run server in background
-          command: './node_modules/http-server/bin/http-server'
+          command: './node_modules/http-server/bin/http-server &'
           background: true
       - run:
           name: Run tests
