@@ -203,6 +203,8 @@
     <script src="reorient.js"></script>
 
     <script>
+      initUI(MUI);
+
       let file = false;
       $(".box")
       .on("drag dragstart dragend dragover dragenter dragleave drop", function(e) {
@@ -225,7 +227,6 @@
         e.preventDefault();
         if (file) {
           init(file[0]);
-          initUI(MUI);
         }
       });
     </script>
