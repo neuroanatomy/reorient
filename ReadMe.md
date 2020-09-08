@@ -1,4 +1,5 @@
 # Reorient
+[![CircleCI](https://circleci.com/gh/neuroanatomy/reorient.svg?style=shield)](https://circleci.com/gh/neuroanatomy/reorient)
 
 Roberto Toro & Katja Heuer, January 2018
 
