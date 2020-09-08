@@ -7,7 +7,7 @@ jobs:
       - checkout
       - run: npm install
       - run: npm i puppeteer
-      - run: npm i http-server
+      - run: npm i http-server -g
       - run:
           name: Run server in background
           command: 'http-server'
