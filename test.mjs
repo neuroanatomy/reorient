@@ -83,7 +83,6 @@ describe('Test Reorient', () => {
         assert.equal(msg, "\nChoose a .nii.gz file or drag it here.");
       });
       it('init with test nifti file', async () => {
-        this.timeout(5000);
         const path = "./img/bear_uchar.nii.gz";
         const res = await page.evaluate(async (path) => {
           await window.initWithPath(path);
@@ -91,7 +90,7 @@ describe('Test Reorient', () => {
           return typeof window.globals.mv.mri;
         }, path);
         assert.equal(res, "object");
-      });
+      }).timeout(5000);
       it('has the expected dimensions', async () => {
         const res = await page.evaluate(async () => {
           return window.globals.mv.mri.dim;
