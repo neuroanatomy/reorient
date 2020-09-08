@@ -1,9 +1,11 @@
 # Reorient
-[![CircleCI](https://circleci.com/gh/neuroanatomy/reorient.svg?style=shield)](https://circleci.com/gh/neuroanatomy/reorient)
+
+A Web tool for reorienting and cropping MRI data.
 
 Roberto Toro & Katja Heuer, January 2018
 
-A Web tool for reorienting and cropping MRI data. Like this:
+[![CircleCI](https://circleci.com/gh/neuroanatomy/reorient.svg?style=shield)](https://circleci.com/gh/neuroanatomy/reorient)
+
 
 <img width="1260" alt="screenshot" src="https://raw.githubusercontent.com/neuroanatomy/reorient/master/img/reorient.png">
 
