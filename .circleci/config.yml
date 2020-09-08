@@ -6,11 +6,10 @@ jobs:
     steps:
       - checkout
       - run: npm install
-      - run: npm i puppeteer
-      - run: npm i http-server -g
+      - run: npm i http-server
       - run:
           name: Run server in background
-          command: 'http-server'
+          command: './node_modules/http-server/bin/http-server'
           background: true
       - run:
           name: Run tests
