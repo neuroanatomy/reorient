@@ -38,6 +38,7 @@ Reorient was coded in JavaScript and runs as a GitHub Web page. Code style was v
 # Citations
 
 # Figures
+![Reorient. A Web tool for reorienting and cropping MRI data. Top: Reorient interface. Interactive stereotaxic viewers with orientation information panel on the side. Dragging is used to easily translate, rotate and crop the data. Save the reorientation matrix and the crop box along with the reoriented Nifti volume for a reproducible workflow. Middle: Reorientation example using a macaque from Prime-DE (site "amu", Brochier et al., 10.5281/zenodo.3402456). Left: Center brain by dragging in the interface. Middle: Rotate brain with respect to the standard view axes. Right: Select brain and crop the surrounding tissue. Bottom: Reorientation result. A reorientation matrix and selection box can be obtained in ~1 min for a typical brain. The image shows the Nifti volume saved by reorient, produced using trilinear interpolation displayed in FSLeyes.\label{fig:reorient}](https://raw.githubusercontent.com/neuroanatomy/reorient/master/img/reorient_180mm_HeuerToro.png)
 
 # Acknowledgements
 
