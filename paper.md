@@ -22,7 +22,9 @@ affiliations:
  - name: Institut Pasteur  
    index: 3
 date: 9 September 2020  
-bibliography: paper.bib
+bibliography: paper.bib  
+
+---
 
 # Summary
 Reorient (https://neuroanatomy.github.io/reorient) is an open source Web application for the manual alignment and cropping of MRI nifti volumes in an intuitive way. The MRI data is dragged onto the Web interface and visualised in an interactive stereotaxic viewer. Users can then translate and rotate the brain by simply dragging inside the 3 view planes, and an adjustable selection box allows to define the crop of the image. Users can save the resulting affine matrix, selection box as well as the reoriented and cropped volume. The affine matrix and selection box can be used later within a scripted workflow, able to reproduce the reoriented volume from the original data. Existing rotation matrices can be loaded or appended.
