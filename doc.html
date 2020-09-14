@@ -1,0 +1,141 @@
+<html>
+  <!-- Do not add doctype here, it breaks the css -->
+  <head>
+    <title>Reorient documentation</title>
+    <link
+    rel="icon"
+    sizes="any"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Ccircle cx='5' cy='5' r='5' fill='grey'/%3E%3C/svg%3E"
+   >
+
+   <style>
+    #menu {
+      float: right;
+      margin-right: 10px;
+    }
+    #menu img {
+      margin-left: 15px;
+    }
+    .mui {
+      font-family: "Montserrat", sans-serif;
+      font-size: 14px;
+      font-weight: 200;
+    }
+    #text-container{
+      max-width: 700px;
+      position: absolute;
+      left: 50%;
+      transform: translateX( -50% );
+      margin-top: 20px;
+    }
+    .doc {
+      font-family: "Roboto Mono", monospace;
+      font-size: 14px;
+      font-weight: 100;
+      color: white;
+      text-align: left;
+    }
+    h1{
+      font-family: "Roboto Mono", monospace;
+      font-weight: 500;
+    }
+    img.button {
+      width: 0.9rem;
+      height: 0.9rem;
+      margin: 8px 2px;
+      vertical-align: middle;
+      cursor: pointer;
+    }
+    img.button:hover {
+      opacity: 0.5;
+    }
+    img.icon {
+      width: 1rem;
+      height: 1rem;
+      margin: 4px 2px;
+      vertical-align: middle;
+      cursor: pointer;
+    }
+    </style>
+  </head>
+
+  <body>
+
+    <div id="header">
+      <!-- Top-right menu bar -->
+      <div id="menu">
+        <img id="doc" class="button" title="documentation" src="img/doc.svg"/>
+        <a href="https://github.com/neuroanatomy/reorient/issues" target="_blank"><img id="bug" class="button" title="report a bug" src="img/bug.svg"/></a>
+        <a href="https://github.com/neuroanatomy/reorient" target="_blank"><img id="github" class="button" title="join our github project" style="width:15px;height:15px" src="img/github.svg"/></a>
+      </div>
+
+      <!-- Left-top logo -->
+      <div style="display:inline-block;margin:10px">
+        <a href="/" style="text-decoration:none">
+          <img style="height:28px;vertical-align:middle" src="img/reorient-logo.svg"/>
+        </a>
+      </div>
+    </div>
+
+
+    <!-- Documentation -->
+    <div id="text-container" style="display: flex">
+      <div class="doc">
+        <h1>Documentation</h1>
+        <p>
+          <b>Load & navigate data.</b> To load your data, simply drag and drop your nifti volume onto the reorient box. Your MRI will appear in a stereotaxic viewer. (Note: Only .nii.gz can be loaded at this time.) Navigate through slices using the sliders below each viewer.
+        </p>
+        <p>
+          <b>Translation.</b> Click into the viewer and drag your volume to the desired position. The 3 viewers are synchronised and updated in real-time as is the matrix display in the left panel. The translate tool is selected by default when the data has been loaded.
+        </p>
+        <p>
+          <b>Rotation.</b> Select the Rotate tool in the left panel, and then drag your volume clockwise or counterclockwise into the desired position. The 3 viewers are synchronised and updated in real-time as is the matrix in the left panel.
+        </p>
+        <p>
+          <b>Cropping.</b> Click the Select tool in the left panel and drag the 4 boundaries of the selection box to enclose the desired part of the image.
+        </p>
+        <p>
+          <b>Saving.</b> Please save the rotation matrix and the selection box together with your reoriented nifti volume for a fully reproducible workflow.<br />
+          <p2 style="font-weight: 400;">Save Rotation Matrix</p2> saves the affine matrix of the current MRI to a text file.<br />
+          <p2 style="font-weight: 400;">Save Selection Box</p2> saves the current selection to a text file.<br/>
+          <p2 style="font-weight: 400;">Save Nifti</p2> saves saves the transformed version of the current MRI in nifti format. Depending on the size of your volume, the save may take a moment without printing anything on screen. Patience 🙃
+        </p>
+        <p>
+          <p2 style="font-weight: 400;">Load Selection Box.</p2> Load a volume selection from a text file. It will update the crop box boundaries which are only displayed when the Selection tool is selected.
+        </p>
+        <p>
+          <b>Load new rotation matrix.</b> Load an affine matrix from a text file, and replace the one in the current MRI.
+        </p>
+        <p>
+          <b>Append rotation matrix.</b> Load an affine matrix from a text file and append it to the one in the current MRI.
+        </p>
+        <p>
+          <b>Reset matrix.</b> Reset the MRI affine matrix to its original value.<br />
+        </p>
+        <img style="max-width:700px;padding-top:30px;padding-bottom:30px;" src="https://raw.githubusercontent.com/neuroanatomy/reorient/master/img/reorient-180mm_HeuerToro_web.png" alt=""/>
+      </div>
+
+    </div>
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.1.1/dist/jquery.min.js"></script>
+    <!-- <script>window.jQuery || document.write('<script src="http://localhost/libs/jquery/3.1.1/jquery.min.js"><\/script>')</script> -->
+
+    <script src="https://cdn.jsdelivr.net/gh/r03ert0/muijs/mui.js"></script>
+    <!-- <script>window.MUI || document.write('<script src="http://localhost/muijs/mui.js"><\/script>')</script> -->
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/r03ert0/muijs/mui.css" />
+    <!-- <link rel="stylesheet" type="text/css" href="http://localhost/muijs/mui.css" /> -->
+
+    <link rel="stylesheet" type="text/css" href="reorient.css" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:100,500" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:200" rel="stylesheet" />
+
+
+    <script>
+      initUI(MUI);
+    </script>
+
+  </body>
+</html>
