@@ -8,12 +8,12 @@ tags:
   - JavaScript
   - Web tool  
 authors:
-  - name: Katja Heuer^[Corresponding author]   
+  - name: Katja Heuer   
     orcid: 0000-0002-7237-0196  
-    affiliation: "1, 2"
-  - name: Roberto Toro^[Corresponding author]  
+    affiliation: "*1, 2"
+  - name: Roberto Toro  
     orcid: 0000-0002-6671-858X  
-    affiliation: "1, 3"  
+    affiliation: "*1, 3"  
 affiliations:
  - name: Center for Research and Interdisciplinarity, University of Paris  
    index: 1
@@ -21,6 +21,8 @@ affiliations:
    index: 2
  - name: Institut Pasteur  
    index: 3
+ - name: Corresponding authors
+   index: *
 date: 9 September 2020  
 bibliography: paper.bib  
 
