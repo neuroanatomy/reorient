@@ -21,8 +21,6 @@ affiliations:
    index: 2
  - name: Institut Pasteur  
    index: 3
- - name: Corresponding authors
-   index: *
 date: 9 September 2020  
 bibliography: paper.bib  
 
