@@ -10,10 +10,10 @@ tags:
 authors:
   - name: Katja Heuer   
     orcid: 0000-0002-7237-0196  
-    affiliation: "*1, 2"
+    affiliation: "1, 2"
   - name: Roberto Toro  
     orcid: 0000-0002-6671-858X  
-    affiliation: "*1, 3"  
+    affiliation: "1, 3"  
 affiliations:
  - name: Center for Research and Interdisciplinarity, University of Paris  
    index: 1
