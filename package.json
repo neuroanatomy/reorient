@@ -27,6 +27,6 @@
   },
   "homepage": "https://github.com/neuroanatomy/reorient#readme",
   "devDependencies": {
-    "puppeteer": "^5.2.1"
+    "puppeteer": "^5.3.0"
   }
 }
