@@ -23,7 +23,7 @@ const globals = {
   mv: null,
   origMatrix: null,
   prevMatrix: null
-}
+};
 window.globals = globals;
 
 function updateProgress(e) {
@@ -106,7 +106,7 @@ function gamma(a) {
 }
 
 /**
- * 4x4 Identity matryx
+ * 4x4 Identity matrix
  */
 function eye() {
   return [
