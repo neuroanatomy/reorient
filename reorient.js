@@ -463,8 +463,8 @@ function saveMatrix() {
   const {mv} = globals;
   const a = document.createElement('a');
   const m = mv.mri.MatrixVox2Mm;
-  const str = m.map((o) => o.join(' ')).join('\n');
-  a.href = 'data:text/csv;charset=utf-8,' + str;
+  const str = m.map((o) => o.join(' ')).join('%0A');
+  a.href = 'data:text/plain;charset=utf-8,' + str;
   const name = prompt("Save Voxel To World Matrix (the inverse of the one displayed) As...", "reorient.mat");
   if(name !== null) {
     a.download=name;
@@ -515,8 +515,8 @@ function saveSelection() {
   const str =[
     [cropBox.min.x, cropBox.min.y, cropBox.min.z].join(' '),
     [cropBox.max.x, cropBox.max.y, cropBox.max.z].join(' ')
-  ].join('\n');
-  a.href = 'data:text/csv;charset=utf-8,' + str;
+  ].join('%0A');
+  a.href = 'data:text/plain;charset=utf-8,' + str;
   const name = prompt("Save Selection As...", "selection.txt");
   if(name !== null) {
     a.download=name;
