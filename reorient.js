@@ -543,7 +543,7 @@ function loadNiftiFailedMessage(err) {
       Sorry, something went wrong with that file.
       You can
       <a
-        href="/"
+        href="https://neuroanatomy.github.io/reorient"
         style="color:white"
       >reload</a> and try again, or
       <a
