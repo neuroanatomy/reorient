@@ -10,14 +10,14 @@ const globals = {
   selectedTool: 'Translate',
   cropBox: {
     min: {
-      x: -30,
-      y: -30,
-      z: 0
+      x: -20,
+      y: -20,
+      z: -20
     },
     max: {
-      x: 30,
-      y: 30,
-      z: 30
+      x: 20,
+      y: 20,
+      z: 20
     }
   },
   mv: null,
@@ -58,7 +58,7 @@ function printInfo() {
   ];
   for(let i = 0; i < str.length; i++ ) {
     document.querySelector(`#info${i}`).innerHTML = `<pre>${str[i]}</pre>`;
-}
+  }
 }
 
 /**
