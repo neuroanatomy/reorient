@@ -215,7 +215,6 @@ function mouse2canvas(canvas, e) {
 function mouseDown(view, e) {
   globals.mouseIsDown = true;
   view.prevMouseCoords = mouse2canvas(view.canvas, e);
-  console.log("down on", view.plane, view.prevMouseCoords);
 }
 
 /**
@@ -248,7 +247,7 @@ function mouseMove(view, e) {
       }
       break;
     case 'Rotate': {
-      const n = Math.sqrt(view.prevMouseCoords.x*view.prevMouseCoords.x + view.prevMouseCoords.y*view.prevMouseCoords.y);
+      const n = Math.sqrt(view.prevMouseCoords.x**2 + view.prevMouseCoords.y**2);
       const i = {
         x: view.prevMouseCoords.x/n,
         y: view.prevMouseCoords.y/n
