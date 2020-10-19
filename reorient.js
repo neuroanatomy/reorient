@@ -671,20 +671,22 @@ async function init(file) {
   await _display();
 }
 
+function selectTool(option) {
+  globals.selectedTool = option;
+  if(globals.selectedTool === 'Select') {
+    $('.overlay').show();
+  } else {
+    $('.overlay').hide();
+  }
+}
+
 /**
  * Connect UI elements to functions
  * @param {object} MUI Reference to UI widgets
  */
 function initUI(MUI) {
   // Initialise UI
-  MUI.chose($('#tools'), function(option) {
-    globals.selectedTool = option;
-    if(globals.selectedTool === 'Select') {
-      $('.overlay').show();
-    } else {
-      $('.overlay').hide();
-    }
-  });
+  MUI.chose($('#tools'), selectTool);
   MUI.push($('#loadNifti'), loadNifti);
   MUI.push($('#saveNifti'), saveNifti);
   MUI.push($('#loadMatrix'), loadMatrix);
@@ -693,4 +695,6 @@ function initUI(MUI) {
   MUI.push($('#loadSelection'), loadSelection);
   MUI.push($('#saveSelection'), saveSelection);
   MUI.push($('#resetMatrix'), resetMatrix);
+
+  // selectTool("Select");
 }
