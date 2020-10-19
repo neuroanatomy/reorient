@@ -49,12 +49,16 @@ function printInfo() {
   const {cropBox, mv} = globals;
   const v2m = mv.mri.MatrixVox2Mm;
   const m2v = mv.mri.MatrixMm2Vox;
-  const str1 = matrix2str(m2v);
-  const str3 = matrix2str(v2m);
-  const str2 = `(${cropBox.min.x},${cropBox.min.y},${cropBox.min.z})\n(${cropBox.max.x},${cropBox.max.y},${cropBox.max.z})`;
-  document.querySelector('#info1').innerHTML = `<pre>${str1}</pre>`;
-  document.querySelector('#info2').innerHTML = `<pre>${str3}</pre>`;
-  document.querySelector('#info3').innerHTML = `<pre>${str2}</pre>`;
+  const str = [
+    `${mv.mri.fileName}`,
+    `${mv.mri.dim[0]}x${mv.mri.dim[1]}x${mv.mri.dim[2]}`,
+    matrix2str(m2v),
+    matrix2str(v2m),
+    `(${cropBox.min.x},${cropBox.min.y},${cropBox.min.z})\n(${cropBox.max.x},${cropBox.max.y},${cropBox.max.z})`
+  ];
+  for(let i = 0; i < str.length; i++ ) {
+    document.querySelector(`#info${i}`).innerHTML = `<pre>${str[i]}</pre>`;
+}
 }
 
 /**
