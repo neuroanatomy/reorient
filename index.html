@@ -76,11 +76,9 @@
       .box.is-dragover {
         background-color: #333;
       }
-      .box.is-uploading .box_input {
+      .box.is-uploading .box_input,
+      .box.is-error .box_input {
         visibility: hidden;
-      }
-      .box.is-uploading .box_uploading {
-        display: block;
       }
       .box_icon {
         margin-bottom: 20px;
@@ -91,14 +89,12 @@
         display: block;
         position: absolute;
         top: 50%;
-        right: 0;
-        left: 0;
-        transform: translateY( -50% );
+        left: 50%;
+        transform: translate( -50%, -50% );
       }
       .box_uploading {
         font-style: italic;
       }
-
       .box {
         display: none;
       }
@@ -195,11 +191,10 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.1.1/dist/jquery.min.js"></script>
-    <!-- <script>window.jQuery || document.write('<script src="http://localhost/libs/jquery/3.1.1/jquery.min.js"><\/script>')</script> -->
+    <!-- <script src="http://localhost/libs/jquery/3.1.1/jquery.min.js"></script> -->
 
-    <script src="https://cdn.jsdelivr.net/gh/r03ert0/mriviewerjs@v0.1.6/mriviewer.js"></script>
-    <!-- <script src="/lib/mriviewerjs/mriviewer.js"></script> -->
-    <!-- <script>window.MRIViewer || document.write('<script src="http://localhost/mriviewerjs/mriviewer.js"><\/script>')</script> -->
+    <script src="https://cdn.jsdelivr.net/gh/r03ert0/mriviewerjs@v0.1.7/mriviewer.js"></script>
+    <!-- <script src="http://localhost/mriviewerjs-r03ert0/mriviewer.js"></script> -->
 
     <script src="https://cdn.jsdelivr.net/gh/r03ert0/muijs/mui.js"></script>
     <!-- <script>window.MUI || document.write('<script src="http://localhost/muijs/mui.js"><\/script>')</script> -->
@@ -237,7 +232,8 @@
         $(".box").addClass("is-uploading").removeClass("is-error");
         e.preventDefault();
         if (file) {
-          init(file[0]);
+          init(file[0])
+            .catch(loadNiftiFailedMessage);
         }
       });
     </script>

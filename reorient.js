@@ -537,13 +537,48 @@ function saveSelection() {
 /**
  * Load a nifti file.
  */
+function loadNiftiFailedMessage(err) {
+  let errorMessage = `
+    <div>
+      Sorry, something went wrong with that file.
+      You can
+      <a
+        href="/"
+        style="color:white"
+      >reload</a> and try again, or
+      <a
+        href="https://github.com/neuroanatomy/reorient/issues"
+        style="color:white"
+      >get in touch with us</a> if you think it's a bug.
+    </div>
+    `;
+
+  // check if file is unusually large
+  const res = err.toString().match(/Invalid typed array length: ([0-9]+)/);
+  if(res) {
+    const mb = parseInt(res[1])/2**20;
+    if(mb>200) {
+      errorMessage += `
+        <div>
+        The file size (${Math.round(mb)} MB) is unusually large.
+        </div>
+        `;
+    }
+  }
+
+  document.querySelector(".box_error").innerHTML = errorMessage;
+  $(".box").addClass("is-error").removeClass("is-uploading");;
+  console.log(err);
+}
 function loadNifti() {
   const input=document.createElement("input");
   input.type="file";
   input.onchange=function() {
+    $(".box").addClass("is-uploading").removeClass("is-error");
     const [file]=this.files;
     console.log('loading', file);
-    init(file);
+    init(file)
+      .catch(loadNiftiFailedMessage);
   };
   input.click();
 }
@@ -658,7 +693,11 @@ async function _display() {
  */
 async function initWithPath(path) {
   _newMRIViewer({path});
-  await _display();
+  try {
+    await _display();
+  } catch(err) {
+    throw new Error(err);
+  }
   console.log("globals.mv.mri", globals.mv.mri);
 }
 
@@ -668,7 +707,11 @@ async function initWithPath(path) {
  */
 async function init(file) {
   _newMRIViewer({file: file});
-  await _display();
+  try {
+    await _display();
+  } catch(err) {
+    throw new Error(err);
+  }
 }
 
 function selectTool(option) {
