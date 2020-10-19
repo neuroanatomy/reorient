@@ -282,34 +282,31 @@ function mouseUp() {
 }
 
 /**
- * Update the display of the selection box overlay base
- * on the cropBox dimensions
+ * Update the display of the selection box overlay 
+ * based on the cropBox dimensions
  */
 function updateOverlaysFromCropBox() {
   const {cropBox, mv} = globals;
   /*
-  Currently, all views have the same dimensions, which allows us to get rect only
-  from the first one
+  Currently, all views have the same dimensions, which allows us
+  to get rect dimensions only from the first one
   */
   const rect = mv.views[0].canvas.getBoundingClientRect();
 
-  // the size of the cropBox in millimetres
-  const worldBox = [
-    cropBox.min.x, cropBox.min.y, cropBox.min.z,
-    cropBox.max.x, cropBox.max.y, cropBox.max.z
-  ];
-
   // the size of the cropBox in screen pixels
-  const screenBox = worldBox.map((o) => o*rect.width/mv.dimensions.absolute.sag.W);
+  const {W} = mv.dimensions.absolute.sag;
+  console.log("Width:", W);
+  const step = rect.width/W;
+  const origin = (W-Math.floor(W/2))*step;
   const min = {
-    x: screenBox[0],
-    y: screenBox[1],
-    z: screenBox[2]
+    x: cropBox.min.x * step,
+    y: cropBox.min.y * step,
+    z: cropBox.min.z * step
   };
   const max = {
-    x: screenBox[3],
-    y: screenBox[4],
-    z: screenBox[5]
+    x: cropBox.max.x * step,
+    y: cropBox.max.y * step,
+    z: cropBox.max.z * step
   };
 
   for(const view of mv.views) {
@@ -317,24 +314,24 @@ function updateOverlaysFromCropBox() {
     switch(view.plane) {
       case 'sag':
         $(ov).css({
-          left: `calc( 50% + (${min.y}px) )`,
-          top: `calc( 50% + (${-max.z}px) )`,
+          left: `${rect.width - origin + min.y}px`,
+          top: `${origin - max.z}px`,
           width: `${max.y - min.y}px`,
-          height: `${max.z - min.z}`
+          height: `${max.z - min.z}px`
         });
         break;
       case 'cor':
         $(ov).css({
-          left: `calc( 50% + (${min.x}px) )`,
-          top: `calc( 50% + (${-max.z}px) )`,
-          width: `${max.x - min.x}`,
-          height: `${max.z - min.z}`
+          left: `${rect.width - origin + min.x}px`,
+          top: `${origin - max.z}px`,
+          width: `${max.x - min.x}px`,
+          height: `${max.z - min.z}px`
         });
         break;
       case 'axi':
         $(ov).css({
-          left: `calc( 50% + (${min.x}px) )`,
-          top: `calc( 50% + (${-max.y}px) )`,
+          left: `${rect.width - origin + min.x}px`,
+          top: `${origin - max.y}px`,
           width: `${max.x - min.x}px`,
           height: `${max.y - min.y}px`
         });
@@ -351,26 +348,28 @@ function updateOverlaysFromCropBox() {
 function updateCropBoxFromOverlay(view, box) {
   const {mv, cropBox} = globals;
   const rect = view.canvas.getBoundingClientRect();
-  const g = mv.dimensions.absolute.sag.W/rect.width;
+  const {W} = mv.dimensions.absolute.sag;
+  const g = W/rect.width;
+  const origin = (W-Math.floor(W/2))/g;
 
   switch(view.plane) {
     case 'sag':
-      cropBox.min.y = Math.round(g*(box.left - rect.width/2));
-      cropBox.min.z = Math.round(g*(rect.height/2 - box.top - box.height));
-      cropBox.max.y = Math.round(g*(box.width + box.left - rect.width/2));
-      cropBox.max.z = Math.round(g*(rect.height/2 - box.top));
+      cropBox.min.y = Math.round(g*(box.left - rect.width + origin));
+      cropBox.min.z = Math.round(g*(origin - box.top - box.height));
+      cropBox.max.y = Math.round(g*(box.width + box.left - rect.width + origin));
+      cropBox.max.z = Math.round(g*(origin - box.top));
       break;
     case 'cor':
-      cropBox.min.x = Math.round(g*(box.left - rect.width/2));
-      cropBox.min.z = Math.round(g*(rect.height/2 - box.top - box.height));
-      cropBox.max.x = Math.round(g*(box.width + box.left - rect.width/2));
-      cropBox.max.z = Math.round(g*(rect.height/2 - box.top));
+      cropBox.min.x = Math.round(g*(box.left - rect.width + origin));
+      cropBox.min.z = Math.round(g*(origin - box.top - box.height));
+      cropBox.max.x = Math.round(g*(box.width + box.left - rect.width + origin));
+      cropBox.max.z = Math.round(g*(origin - box.top));
       break;
     case 'axi':
-      cropBox.min.x = Math.round(g*(box.left - rect.width/2));
-      cropBox.min.y = Math.round(g*(rect.height/2 - box.top - box.height));
-      cropBox.max.x = Math.round(g*(box.width + box.left - rect.width/2));
-      cropBox.max.y = Math.round(g*(rect.height/2 - box.top));
+      cropBox.min.x = Math.round(g*(box.left - rect.width + origin));
+      cropBox.min.y = Math.round(g*(origin - box.top - box.height));
+      cropBox.max.x = Math.round(g*(box.width + box.left - rect.width + origin));
+      cropBox.max.y = Math.round(g*(origin - box.top));
       break;
   }
   updateOverlaysFromCropBox();
