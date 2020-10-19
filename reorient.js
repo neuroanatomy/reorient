@@ -555,11 +555,12 @@ function loadNifti() {
  */
 function saveNifti() {
   const {cropBox, mv} = globals;
+  // pixdim has 3 times the same value: the median of the original 3 pixdim values
   const {pixdim} = mv.dimensions.absolute;
   const dim = [
-    Math.ceil(cropBox.max.x - cropBox.min.x),
-    Math.ceil(cropBox.max.y - cropBox.min.y),
-    Math.ceil(cropBox.max.z - cropBox.min.z)
+    Math.round(cropBox.max.x - cropBox.min.x),
+    Math.round(cropBox.max.y - cropBox.min.y),
+    Math.round(cropBox.max.z - cropBox.min.z)
   ];
 
   console.log("Crop volume dimensions:", dim);
