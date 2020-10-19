@@ -171,11 +171,14 @@ function rotate(axis, val) {
 function trans(delta) {
   const {mv} = globals;
   if(globals.prevMatrix === null) {
-    console.log('set');
     globals.prevMatrix = JSON.parse(JSON.stringify(mv.mri.MatrixMm2Vox));
   }
   const m = eye();
-  const [pix] = mv.mri.pixdim;
+  // const {pixdim} = mv.mri;
+  // m[0][3] = delta[0]*pixdim[0];
+  // m[1][3] = delta[1]*pixdim[1];
+  // m[2][3] = delta[2]*pixdim[2];
+  const [pix] = mv.dimensions.absolute.pixdim; //  mv.mri.pixdim;
   m[0][3] = delta[0]*pix;
   m[1][3] = delta[1]*pix;
   m[2][3] = delta[2]*pix;
@@ -195,8 +198,12 @@ function mouse2canvas(canvas, e) {
   const sy = canvas.height / r.height;
 
   return {
-    x: parseInt((e.clientX - r.left)*sx),
-    y: parseInt((e.clientY - r.top)*sy)
+    x: (e.clientX - r.left)*sx,
+    y: (e.clientY - r.top)*sy
+
+    // use this to force translation by discrete steps
+    // x: Math.floor((e.clientX - r.left)*sx),
+    // y: Math.floor((e.clientY - r.top)*sy)
   };
 }
 
