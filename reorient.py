@@ -61,19 +61,20 @@ def world_pixdim(nii):
     if np.abs(o) > np.abs(mk["v"]): mk = {"i": n, "v": o}
 
   pixdim = nii.header["pixdim"][1:4]
+  medpix = np.sort(pixdim)[1]
   wpixdim = np.zeros(3)
-  wpixdim[mi["i"]] = pixdim[0]
-  wpixdim[mj["i"]] = pixdim[1]
-  wpixdim[mk["i"]] = pixdim[2]
+  wpixdim[mi["i"]] = medpix # pixdim[0]
+  wpixdim[mj["i"]] = medpix # pixdim[1]
+  wpixdim[mk["i"]] = medpix # pixdim[2]
 
   return wpixdim
 
 def reorient(img, rotation, selection):
   pixdim = world_pixdim(img)
   dim = [
-    int(np.ceil(selection[1,0] - selection[0,0])),
-    int(np.ceil(selection[1,1] - selection[0,1])),
-    int(np.ceil(selection[1,2] - selection[0,2]))
+    int(np.round(selection[1,0] - selection[0,0])),
+    int(np.round(selection[1,1] - selection[0,1])),
+    int(np.round(selection[1,2] - selection[0,2]))
   ]
   mm2vox = np.linalg.inv(rotation)
   orig_data = img.get_fdata()
