@@ -8,7 +8,7 @@ const globals = {
   // Global variable that keeps track of the tool used: Translate, Rotate or Select
   // (set to Translate by default).
   selectedTool: 'Translate',
-  cropBox: {
+  defaultCropBox: {
     min: {
       x: -20,
       y: -20,
@@ -20,6 +20,7 @@ const globals = {
       z: 20
     }
   },
+  cropBox: {},
   mv: null,
   origMatrix: null,
   prevMatrix: null
@@ -588,7 +589,20 @@ function loadNifti() {
  * in nifti format.
  */
 function saveNifti() {
-  const {cropBox, mv} = globals;
+  const {cropBox, defaultCropBox, mv} = globals;
+
+  // check whether cropBox was adjusted or still has default values
+  if( JSON.stringify(cropBox) === JSON.stringify(defaultCropBox) ) {
+    if(!confirm([
+      "Did you remember to adapt the selection box?",
+      "It still has the default values.",
+      "Click OK to continue anyway,",
+      "or Cancel and adjust it using the Select button."
+    ].join(" "))) {
+      return;
+    }
+  }
+
   // pixdim has 3 times the same value: the median of the original 3 pixdim values
   const {pixdim} = mv.dimensions.absolute;
   const dim = [
@@ -626,6 +640,13 @@ function saveNifti() {
   if(name !== null) {
     mv.mri.saveNifti(niigz, name);
   }
+}
+
+/**
+ * Initialise cropBox to default values
+ */
+function _initCropBox() {
+  globals.cropBox = JSON.parse(JSON.stringify(globals.defaultCropBox));
 }
 
 /**
@@ -692,6 +713,7 @@ async function _display() {
  * @param {string} path Local path to MRI file
  */
 async function initWithPath(path) {
+  _initCropBox();
   _newMRIViewer({path});
   try {
     await _display();
@@ -706,6 +728,7 @@ async function initWithPath(path) {
  * @param {object} file File object
  */
 async function init(file) {
+  _initCropBox();
   _newMRIViewer({file: file});
   try {
     await _display();
