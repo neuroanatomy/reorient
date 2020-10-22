@@ -7,7 +7,7 @@
     "lib": "lib"
   },
   "scripts": {
-    "test": "mocha --exit"
+    "test": "http-server . & sleep 2 && mocha --exit"
   },
   "repository": {
     "type": "git",
