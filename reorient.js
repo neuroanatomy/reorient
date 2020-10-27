@@ -389,6 +389,16 @@ function resetMatrix() {
 }
 
 /**
+ * Reset the selection to the default value
+ */
+function resetSelection() {
+  const {mv} = globals;
+  _initCropBox();
+  updateOverlaysFromCropBox();
+  printInfo();
+}
+
+/**
  * Load an affine matrix from a text file. Use it instead of
  * the one in the current MRI.
  */
@@ -703,7 +713,7 @@ async function _display() {
   printInfo();
 
   $('span').show();
-  $('#tools, #saveNifti, #loadSelection, #saveSelection, #loadMatrix, #appendMatrix, #saveMatrix, #resetMatrix, #info').show();
+  $('#tools, #saveNifti, #loadSelection, #saveSelection, #loadMatrix, #appendMatrix, #saveMatrix, #resetMatrix, #resetSelection, #info').show();
   $('#buttons').removeClass('init');
   $('#loadNifti').removeClass('mui-no-border');
 }
@@ -761,6 +771,7 @@ function initUI(MUI) {
   MUI.push($('#loadSelection'), loadSelection);
   MUI.push($('#saveSelection'), saveSelection);
   MUI.push($('#resetMatrix'), resetMatrix);
+  MUI.push($('#resetSelection'), resetSelection);
 
   // selectTool("Select");
 }
