@@ -1,32 +1,35 @@
 /* globals MUI, $ */
 
-// Global variable used to detect mouse drag
-var mouseIsDown = false;
-
-// Global variable that keeps track of the tool used: Translate, Rotate or Select
-// (set to Translate by default).
-var selectedTool = 'Translate';
-
-var cropBox = {
-  min: {
-    x: -30,
-    y: -30,
-    z: 0
+/**
+ * @description Global variables
+ */
+const globals = {
+  mouseIsDown: false,
+  // Global variable that keeps track of the tool used: Translate, Rotate or Select
+  // (set to Translate by default).
+  selectedTool: 'Translate',
+  defaultCropBox: {
+    min: {
+      x: -20,
+      y: -20,
+      z: -20
+    },
+    max: {
+      x: 20,
+      y: 20,
+      z: 20
+    }
   },
-  max: {
-    x: 30,
-    y: 30,
-    z: 30
-  }
+  cropBox: {},
+  mv: null,
+  origMatrix: null,
+  prevMatrix: null
 };
-
-var mv;
-let origMatrix = null;
-let prevMatrix = null;
+window.globals = globals;
 
 function updateProgress(e) {
   if (e.lengthComputable) {
-    var percentComplete = e.loaded / e.total;
+    const percentComplete = e.loaded / e.total;
     console.log("%", percentComplete);
   } else {
     console.log('Unable to compute progress information since the total size is unknown');
@@ -34,22 +37,35 @@ function updateProgress(e) {
 }
 
 function matrix2str(matrix) {
-  var str=matrix.map((row) => row.map((value) => ((value>=0)?' ':'')+value.toPrecision(2))).join('\n');
+  const str = matrix.map((row) => {
+    return row.map((value) => {
+      return ((value>=0)?' ':'') + value.toPrecision(2)
+    });
+  }).join('\n');
 
   return str;
 }
 
 function printInfo() {
-  var v2m = mv.mri.MatrixVox2Mm;
-  var m2v = mv.mri.MatrixMm2Vox;
-  var str1 = matrix2str(m2v);
-  var str3 = matrix2str(v2m);
-  var str2=`(${cropBox.min.x},${cropBox.min.y},${cropBox.min.z})\n(${cropBox.max.x},${cropBox.max.y},${cropBox.max.z})`;
-  $('#info1').html(`<pre>${str1}`);
-  $('#info2').html(`<pre>${str3}`);
-  $('#info3').html(`<pre>${str2}`);
+  const {cropBox, mv} = globals;
+  const v2m = mv.mri.MatrixVox2Mm;
+  const m2v = mv.mri.MatrixMm2Vox;
+  const str = [
+    `${mv.mri.fileName}`,
+    `${mv.mri.dim[0]}x${mv.mri.dim[1]}x${mv.mri.dim[2]}`,
+    matrix2str(m2v),
+    matrix2str(v2m),
+    `(${cropBox.min.x},${cropBox.min.y},${cropBox.min.z})\n(${cropBox.max.x},${cropBox.max.y},${cropBox.max.z})`
+  ];
+  for(let i = 0; i < str.length; i++ ) {
+    document.querySelector(`#info${i}`).innerHTML = `<pre>${str[i]}</pre>`;
+  }
 }
 
+/**
+ * Rotation in the X-axis
+ * @param {number} a Rotation angle in radians
+ */
 function alpha(a) {
   const c = Math.cos(a);
   const s = Math.sin(a);
@@ -62,6 +78,10 @@ function alpha(a) {
   ];
 }
 
+/**
+ * Rotation in the Y-axis
+ * @param {number} a Rotation angle in radians
+ */
 function beta(a) {
   const c = Math.cos(a);
   const s = Math.sin(a);
@@ -74,6 +94,10 @@ function beta(a) {
   ];
 }
 
+/**
+ * Rotation in the Z-axis
+ * @param {number} a Rotation angle in radians
+ */
 function gamma(a) {
   const c = Math.cos(a);
   const s = Math.sin(a);
@@ -86,6 +110,9 @@ function gamma(a) {
   ];
 }
 
+/**
+ * 4x4 Identity matrix
+ */
 function eye() {
   return [
     [1, 0, 0, 0],
@@ -95,23 +122,33 @@ function eye() {
   ];
 }
 
+/**
+ * Update the current MRI affine matrix
+ * @param {array} mat 4x4 matrix
+ */
 function multiplyAndUpdate(mat) {
-  var m2v = mv.mri.MatrixMm2Vox;
-  var tmp = mv.mri.inv4x4Mat([...m2v[0], ...m2v[1], ...m2v[2], ...m2v[3]]);
-  var v2m = [tmp.splice(0, 4), tmp.splice(0, 4), tmp.splice(0, 4), tmp];
-  if(prevMatrix === null ) {
-    prevMatrix = JSON.parse(JSON.stringify(m2v));
+  const {mv} = globals;
+  let m2v = mv.mri.MatrixMm2Vox;
+  const tmp = mv.mri.inv4x4Mat([...m2v[0], ...m2v[1], ...m2v[2], ...m2v[3]]);
+  const v2m = [tmp.splice(0, 4), tmp.splice(0, 4), tmp.splice(0, 4), tmp];
+  if(globals.prevMatrix === null ) {
+    globals.prevMatrix = JSON.parse(JSON.stringify(m2v));
   }
-  m2v = mv.mri.multMatMat(prevMatrix, mat);
+  m2v = mv.mri.multMatMat(globals.prevMatrix, mat);
   mv.mri.MatrixMm2Vox = m2v;
   mv.mri.MatrixVox2Mm = v2m;
 }
 
+/**
+ * Rotate the current MRI
+ * @param {string} axis Rotation axis, either 'x', 'y' or 'z'
+ * @param {number} val Rotation angle
+ */
 function rotate(axis, val) {
-  //val = val/10;
-  console.log(`rotate ${val}`);
-  if(prevMatrix === null) {
-    prevMatrix = JSON.parse(JSON.stringify(mv.mri.MatrixMm2Vox));
+  const {mv} = globals;
+
+  if(globals.prevMatrix === null) {
+    globals.prevMatrix = JSON.parse(JSON.stringify(mv.mri.MatrixMm2Vox));
   }
   switch(axis) {
     case 'x':
@@ -129,17 +166,20 @@ function rotate(axis, val) {
 }
 
 /**
- * @param {array} delta Array containing 3 values: [dx, dy, dz]
- * @returns {void}
+ * Translate the current MRI
+* @param {array} delta Array with translation [x, y, z]
  */
 function trans(delta) {
-  //val = parseInt(val);
-  if(prevMatrix === null) {
-    console.log('set');
-    prevMatrix = JSON.parse(JSON.stringify(mv.mri.MatrixMm2Vox));
+  const {mv} = globals;
+  if(globals.prevMatrix === null) {
+    globals.prevMatrix = JSON.parse(JSON.stringify(mv.mri.MatrixMm2Vox));
   }
   const m = eye();
-  const [pix] = mv.mri.pixdim;
+  // const {pixdim} = mv.mri;
+  // m[0][3] = delta[0]*pixdim[0];
+  // m[1][3] = delta[1]*pixdim[1];
+  // m[2][3] = delta[2]*pixdim[2];
+  const [pix] = mv.dimensions.absolute.pixdim; //  mv.mri.pixdim;
   m[0][3] = delta[0]*pix;
   m[1][3] = delta[1]*pix;
   m[2][3] = delta[2]*pix;
@@ -148,42 +188,52 @@ function trans(delta) {
   printInfo();
 }
 
-// function release(el) {
-//   console.log('release');
-//   prevMatrix = null;
-//   el.value = 0;
-// }
-
+/**
+ * Transform mouse coordinates to canvas
+ * @param {object} canvas Viewer canvas
+ * @param {object} e Mouse event
+ */
 function mouse2canvas(canvas, e) {
   const r = canvas.getBoundingClientRect();
   const sx = canvas.width / r.width;
   const sy = canvas.height / r.height;
 
   return {
-    x: parseInt((e.clientX - r.left)*sx),
-    y: parseInt((e.clientY - r.top)*sy)
+    x: (e.clientX - r.left)*sx,
+    y: (e.clientY - r.top)*sy
+
+    // use this to force translation by discrete steps
+    // x: Math.floor((e.clientX - r.left)*sx),
+    // y: Math.floor((e.clientY - r.top)*sy)
   };
 }
 
+/**
+ * Respond to mouse down
+ * @param {object} view MRIViewer object
+ * @param {object} e Mouse event
+ */
 function mouseDown(view, e) {
-  mouseIsDown = true;
+  globals.mouseIsDown = true;
   view.prevMouseCoords = mouse2canvas(view.canvas, e);
-  // prevCropBox = JSON.parse(JSON.stringify(cropBox));
-  console.log("down on", view.plane, view.prevMouseCoords);
 }
 
+/**
+ * Respond to mouse move for rotations and translations
+ * @param {object} view MRIViewer object
+ * @param {object} e Event
+ */
 function mouseMove(view, e) {
-  if( !mouseIsDown ) {
+  if( !globals.mouseIsDown ) {
     return;
   }
-  //console.log("move on", view.plane, mouse2canvas(view.canvas, e));
   const m = mouse2canvas(view.canvas, e);
   const delta = {
     x: m.x - view.prevMouseCoords.x,
     y: m.y - view.prevMouseCoords.y
   };
 
-  switch(selectedTool) {
+  switch(globals.selectedTool) {
     case 'Translate':
       switch(view.plane) {
         case 'sag':
@@ -198,7 +248,7 @@ function mouseMove(view, e) {
       }
       break;
     case 'Rotate': {
-      const n = Math.sqrt(view.prevMouseCoords.x*view.prevMouseCoords.x + view.prevMouseCoords.y*view.prevMouseCoords.y);
+      const n = Math.sqrt(view.prevMouseCoords.x**2 + view.prevMouseCoords.y**2);
       const i = {
         x: view.prevMouseCoords.x/n,
         y: view.prevMouseCoords.y/n
@@ -223,28 +273,40 @@ function mouseMove(view, e) {
   }
 }
 
+/**
+ * Respond to mouse up, resets the transformation matrix
+ */
 function mouseUp() {
-  mouseIsDown = false;
-  prevMatrix = null;
+  globals.mouseIsDown = false;
+  globals.prevMatrix = null;
 }
 
+/**
+ * Update the display of the selection box overlay 
+ * based on the cropBox dimensions
+ */
 function updateOverlaysFromCropBox() {
-
-  /* Currently, all views have the same dimensions, which allows us to get rect only
-       from the first one
-    */
+  const {cropBox, mv} = globals;
+  /*
+  Currently, all views have the same dimensions, which allows us
+  to get rect dimensions only from the first one
+  */
   const rect = mv.views[0].canvas.getBoundingClientRect();
-  const worldBox = [cropBox.min.x, cropBox.min.y, cropBox.min.z, cropBox.max.x, cropBox.max.y, cropBox.max.z]; // the size of the cropBox in millimetres
-  const screenBox = worldBox.map((o) => o*rect.width/mv.dimensions.absolute.sag.W); // the size of the cropBox in screen pixels
+
+  // the size of the cropBox in screen pixels
+  const {W} = mv.dimensions.absolute.sag;
+  console.log("Width:", W);
+  const step = rect.width/W;
+  const origin = (W-Math.floor(W/2))*step;
   const min = {
-    x: screenBox[0],
-    y: screenBox[1],
-    z: screenBox[2]
+    x: cropBox.min.x * step,
+    y: cropBox.min.y * step,
+    z: cropBox.min.z * step
   };
   const max = {
-    x: screenBox[3],
-    y: screenBox[4],
-    z: screenBox[5]
+    x: cropBox.max.x * step,
+    y: cropBox.max.y * step,
+    z: cropBox.max.z * step
   };
 
   for(const view of mv.views) {
@@ -252,24 +314,24 @@ function updateOverlaysFromCropBox() {
     switch(view.plane) {
       case 'sag':
         $(ov).css({
-          left: `calc( 50% + (${min.y}px) )`,
-          top: `calc( 50% + (${-max.z}px) )`,
+          left: `${rect.width - origin + min.y}px`,
+          top: `${origin - max.z}px`,
           width: `${max.y - min.y}px`,
-          height: `${max.z - min.z}`
+          height: `${max.z - min.z}px`
         });
         break;
       case 'cor':
         $(ov).css({
-          left: `calc( 50% + (${min.x}px) )`,
-          top: `calc( 50% + (${-max.z}px) )`,
-          width: `${max.x - min.x}`,
-          height: `${max.z - min.z}`
+          left: `${rect.width - origin + min.x}px`,
+          top: `${origin - max.z}px`,
+          width: `${max.x - min.x}px`,
+          height: `${max.z - min.z}px`
         });
         break;
       case 'axi':
         $(ov).css({
-          left: `calc( 50% + (${min.x}px) )`,
-          top: `calc( 50% + (${-max.y}px) )`,
+          left: `${rect.width - origin + min.x}px`,
+          top: `${origin - max.y}px`,
           width: `${max.x - min.x}px`,
           height: `${max.y - min.y}px`
         });
@@ -278,49 +340,65 @@ function updateOverlaysFromCropBox() {
   }
 }
 
+/**
+ * Update the cropBox based on the displayed overlay
+ * @param {object} view MRIViewer object
+ * @param {object} box A rectangle with properties {left, top, width, height}
+ */
 function updateCropBoxFromOverlay(view, box) {
+  const {mv, cropBox} = globals;
   const rect = view.canvas.getBoundingClientRect();
-  const g = mv.dimensions.absolute.sag.W/rect.width;
+  const {W} = mv.dimensions.absolute.sag;
+  const g = W/rect.width;
+  const origin = (W-Math.floor(W/2))/g;
 
   switch(view.plane) {
     case 'sag':
-      cropBox.min.y = Math.round(g*(box.left - rect.width/2));
-      cropBox.min.z = Math.round(g*(rect.height/2 - box.top - box.height));
-      cropBox.max.y = Math.round(g*(box.width + box.left - rect.width/2));
-      cropBox.max.z = Math.round(g*(rect.height/2 - box.top));
+      cropBox.min.y = Math.round(g*(box.left - rect.width + origin));
+      cropBox.min.z = Math.round(g*(origin - box.top - box.height));
+      cropBox.max.y = Math.round(g*(box.width + box.left - rect.width + origin));
+      cropBox.max.z = Math.round(g*(origin - box.top));
       break;
     case 'cor':
-      cropBox.min.x = Math.round(g*(box.left - rect.width/2));
-      cropBox.min.z = Math.round(g*(rect.height/2 - box.top - box.height));
-      cropBox.max.x = Math.round(g*(box.width + box.left - rect.width/2));
-      cropBox.max.z = Math.round(g*(rect.height/2 - box.top));
+      cropBox.min.x = Math.round(g*(box.left - rect.width + origin));
+      cropBox.min.z = Math.round(g*(origin - box.top - box.height));
+      cropBox.max.x = Math.round(g*(box.width + box.left - rect.width + origin));
+      cropBox.max.z = Math.round(g*(origin - box.top));
       break;
     case 'axi':
-      cropBox.min.x = Math.round(g*(box.left - rect.width/2));
-      cropBox.min.y = Math.round(g*(rect.height/2 - box.top - box.height));
-      cropBox.max.x = Math.round(g*(box.width + box.left - rect.width/2));
-      cropBox.max.y = Math.round(g*(rect.height/2 - box.top));
+      cropBox.min.x = Math.round(g*(box.left - rect.width + origin));
+      cropBox.min.y = Math.round(g*(origin - box.top - box.height));
+      cropBox.max.x = Math.round(g*(box.width + box.left - rect.width + origin));
+      cropBox.max.y = Math.round(g*(origin - box.top));
       break;
   }
   updateOverlaysFromCropBox();
   printInfo();
 }
 
+/**
+ * Reset the MRI affine matrix to its original value
+ */
 function resetMatrix() {
-  console.log('reset matrix');
+  const {mv, origMatrix} = globals;
   mv.mri.MatrixMm2Vox = JSON.parse(JSON.stringify(origMatrix));
-  prevMatrix = null;
+  globals.prevMatrix = null;
   multiplyAndUpdate(eye());
   mv.draw();
   printInfo();
 }
 
+/**
+ * Load an affine matrix from a text file. Use it instead of
+ * the one in the current MRI.
+ */
 function loadMatrix() {
-  var input=document.createElement("input");
+  const {mv} = globals;
+  const input=document.createElement("input");
   input.type="file";
   input.onchange=function() {
-    var [file]=this.files;
-    var reader = new FileReader();
+    const [file]=this.files;
+    const reader = new FileReader();
     reader.onload = function(e) {
       const str = e.target.result;
       const arr = str.split('\n');
@@ -338,7 +416,7 @@ function loadMatrix() {
       mv.mri.NiiHdrLE.fields.srow_z[2] = v2m[2][2];
       mv.mri.NiiHdrLE.fields.srow_z[3] = v2m[2][3];
       mv.mri.MatrixMm2Vox = mv.mri.mm2vox();
-      prevMatrix = null;
+      globals.prevMatrix = null;
       multiplyAndUpdate(eye());
       mv.draw();
       printInfo();
@@ -347,12 +425,18 @@ function loadMatrix() {
   };
   input.click();
 }
+
+/**
+ * Load an affine matrix from a text file. Append it to
+ * the one in the current MRI.
+ */
 function appendMatrix() {
-  var input=document.createElement("input");
+  const {mv} = globals;
+  const input=document.createElement("input");
   input.type="file";
   input.onchange=function() {
-    var [file]=this.files;
-    var reader = new FileReader();
+    const [file]=this.files;
+    const reader = new FileReader();
     reader.onload = function(e) {
       const str = e.target.result;
       const arr = str.split('\n');
@@ -371,7 +455,7 @@ function appendMatrix() {
       mv.mri.NiiHdrLE.fields.srow_z[2] = v2m[2][2];
       mv.mri.NiiHdrLE.fields.srow_z[3] = v2m[2][3];
       mv.mri.MatrixMm2Vox = mv.mri.mm2vox();
-      prevMatrix = null;
+      globals.prevMatrix = null;
       multiplyAndUpdate(eye());
       mv.draw();
       printInfo();
@@ -380,11 +464,17 @@ function appendMatrix() {
   };
   input.click();
 }
+
+/**
+ * Save the affine matrix of the current MRI
+ * to a text file.
+ */
 function saveMatrix() {
-  var a = document.createElement('a');
-  var m = mv.mri.MatrixVox2Mm;
-  var str = m.map((o) => o.join(' ')).join('\n');
-  a.href = 'data:text/csv;charset=utf-8,' + str;
+  const {mv} = globals;
+  const a = document.createElement('a');
+  const m = mv.mri.MatrixVox2Mm;
+  const str = m.map((o) => o.join(' ')).join('%0A');
+  a.href = 'data:text/plain;charset=utf-8,' + str;
   const name = prompt("Save Voxel To World Matrix (the inverse of the one displayed) As...", "reorient.mat");
   if(name !== null) {
     a.download=name;
@@ -392,12 +482,17 @@ function saveMatrix() {
     a.click();
   }
 }
+
+/**
+ * Load a volume selection from a text file.
+ */
 function loadSelection() {
-  var input=document.createElement("input");
+  const {cropBox, mv} = globals;
+  const input=document.createElement("input");
   input.type="file";
   input.onchange=function() {
-    var [file]=this.files;
-    var reader = new FileReader();
+    const [file]=this.files;
+    const reader = new FileReader();
     reader.onload = function(e) {
       const str = e.target.result;
       const arr = str.split('\n');
@@ -420,13 +515,18 @@ function loadSelection() {
   };
   input.click();
 }
+
+/**
+ * Save the current selection to a text file.
+ */
 function saveSelection() {
-  var a = document.createElement('a');
-  var str =[
+  const {cropBox} = globals;
+  const a = document.createElement('a');
+  const str =[
     [cropBox.min.x, cropBox.min.y, cropBox.min.z].join(' '),
     [cropBox.max.x, cropBox.max.y, cropBox.max.z].join(' ')
-  ].join('\n');
-  a.href = 'data:text/csv;charset=utf-8,' + str;
+  ].join('%0A');
+  a.href = 'data:text/plain;charset=utf-8,' + str;
   const name = prompt("Save Selection As...", "selection.txt");
   if(name !== null) {
     a.download=name;
@@ -434,23 +534,81 @@ function saveSelection() {
     a.click();
   }
 }
+
+/**
+ * Load a nifti file.
+ */
+function loadNiftiFailedMessage(err) {
+  let errorMessage = `
+    <div>
+      Sorry, something went wrong with that file.
+      You can
+      <a
+        href="https://neuroanatomy.github.io/reorient"
+        style="color:white"
+      >reload</a> and try again, or
+      <a
+        href="https://github.com/neuroanatomy/reorient/issues"
+        style="color:white"
+      >get in touch with us</a> if you think it's a bug.
+    </div>
+    `;
+
+  // check if file is unusually large
+  const res = err.toString().match(/Invalid typed array length: ([0-9]+)/);
+  if(res) {
+    const mb = parseInt(res[1])/2**20;
+    if(mb>200) {
+      errorMessage += `
+        <div>
+        The file size (${Math.round(mb)} MB) is unusually large.
+        </div>
+        `;
+    }
+  }
+
+  document.querySelector(".box_error").innerHTML = errorMessage;
+  $(".box").addClass("is-error").removeClass("is-uploading");;
+  console.log(err);
+}
 function loadNifti() {
-  var input=document.createElement("input");
+  const input=document.createElement("input");
   input.type="file";
   input.onchange=function() {
-    var [file]=this.files;
+    $(".box").addClass("is-uploading").removeClass("is-error");
+    const [file]=this.files;
     console.log('loading', file);
-    init(file);
+    init(file)
+      .catch(loadNiftiFailedMessage);
   };
   input.click();
 }
+
+/**
+ * Save the transformed version of the current MRI
+ * in nifti format.
+ */
 function saveNifti() {
-  // const rect = mv.views[0].canvas.getBoundingClientRect();
+  const {cropBox, defaultCropBox, mv} = globals;
+
+  // check whether cropBox was adjusted or still has default values
+  if( JSON.stringify(cropBox) === JSON.stringify(defaultCropBox) ) {
+    if(!confirm([
+      "Did you remember to adapt the selection box?",
+      "It still has the default values.",
+      "Click OK to continue anyway,",
+      "or Cancel and adjust it using the Select button."
+    ].join(" "))) {
+      return;
+    }
+  }
+
+  // pixdim has 3 times the same value: the median of the original 3 pixdim values
   const {pixdim} = mv.dimensions.absolute;
   const dim = [
-    Math.ceil(cropBox.max.x - cropBox.min.x), //*pixdim[0]),
-    Math.ceil(cropBox.max.y - cropBox.min.y), //*pixdim[1]),
-    Math.ceil(cropBox.max.z - cropBox.min.z)//*pixdim[2])
+    Math.round(cropBox.max.x - cropBox.min.x),
+    Math.round(cropBox.max.y - cropBox.min.y),
+    Math.round(cropBox.max.z - cropBox.min.z)
   ];
 
   console.log("Crop volume dimensions:", dim);
@@ -484,197 +642,125 @@ function saveNifti() {
   }
 }
 
-// Initialise mriviewerjs
-function init(file) {
-  mv = new MRIViewer({
-    //    mriPath: 'http://localhost/reorient/data/sloth_bear.nii.gz',
-    //    mriPath: 'http://localhost/mrijs/data/2dseq-1.nii.gz',
-    //    mriPath: 'data/sloth_bear.nii.gz',
-    //    mriPath: 'data/ApelleCebusApell_f4b9.nii.gz',
+/**
+ * Initialise cropBox to default values
+ */
+function _initCropBox() {
+  globals.cropBox = JSON.parse(JSON.stringify(globals.defaultCropBox));
+}
+
+/**
+ * Create an MRI viewer with 3 panes
+ */
+function _newMRIViewer({file, path}) {
+  globals.mv = new MRIViewer({
     mriFile: file,
+    mriPath: path,
+    space: "absolute",
     views: [
       { elem: $('#viewer1').get(0), plane: 'sag' },
       { elem: $('#viewer2').get(0), plane: 'cor' },
       { elem: $('#viewer3').get(0), plane: 'axi' }
     ]
   });
-  console.log('load and display mri');
-  mv.display(updateProgress)
-    .then( (o) => {
-      console.log('got', o);
-      // if(0) {
-      //   // print nii header
-      //   var h=JSON.stringify(MRI.NiiHdrLE.fields, undefined, 2);
-      //   $('body').append('<pre>'+h+'</pre>');
-      // }
-
-      // Save the original matrix for reset
-      origMatrix = JSON.parse(JSON.stringify(mv.mri.MatrixMm2Vox));
-
-      // Add click event listeners
-      var ii;
-      for(ii=0; ii<mv.views.length; ii++) {
-        (function(i) {
-          mv.views[i].canvas.addEventListener('mousedown', (e) => mouseDown(mv.views[i], e));
-          mv.views[i].canvas.addEventListener('mousemove', (e) => mouseMove(mv.views[i], e));
-          mv.views[i].canvas.addEventListener('mouseup', (e) => mouseUp(mv.views[i], e));
-        }(ii));
-      }
-
-      // Add an overlay for the cropping
-      for(ii=0; ii<mv.views.length; ii++) {
-        $(mv.views[ii].elem).find('.wrap')
-          .append(`<div class='overlay' id='overlay${ii}'>`);
-        (function(i) {
-          MUI.crop(`#overlay${i}`, (box) => { updateCropBoxFromOverlay(mv.views[i], box); });
-        }(ii));
-      }
-      updateOverlaysFromCropBox();
-
-      // print transformation matrix
-      printInfo();
-
-      /*
-      // display voxel volume
-      // render 3d box
-      var mat = [
-          [mv.mri.dim[0],0,0,-mv.mri.dim[0]/2],
-          [0,mv.mri.dim[1],0,-mv.mri.dim[1]/2],
-          [0,0,mv.mri.dim[2],-mv.mri.dim[2]/2],
-          [0,0,0,1]
-      ];
-      initRenderer(mat);
-      animate(mat);
-      */
-
-      $('span').show();
-      $('#tools, #saveNifti, #loadSelection, #saveSelection, #loadMatrix, #appendMatrix, #saveMatrix, #resetMatrix, #info').show();
-      $('#buttons').removeClass('init');
-      $('#loadNifti').removeClass('mui-no-border');
-
-    })
-    .catch((err) => {
-      console.log(err);
-    });
 }
 
-// Initialise UI
-MUI.chose($('#tools'), function(option) {
-  selectedTool = option;
-  if(selectedTool === 'Select') {
+/**
+ * Load and display the MRI views
+ */
+async function _display() {
+  const {mv} = globals;
+
+  try {
+    await mv.display(updateProgress);
+  } catch(err) {
+    throw new Error(err);
+  }
+
+  // Save the original matrix for reset
+  globals.origMatrix = JSON.parse(JSON.stringify(mv.mri.MatrixMm2Vox));
+
+  // Add click event listeners
+  for(let ii=0; ii<mv.views.length; ii++) {
+    (function(i) {
+      mv.views[i].canvas.addEventListener('mousedown', (e) => mouseDown(mv.views[i], e));
+      mv.views[i].canvas.addEventListener('mousemove', (e) => mouseMove(mv.views[i], e));
+      mv.views[i].canvas.addEventListener('mouseup', (e) => mouseUp(mv.views[i], e));
+    }(ii));
+  }
+
+  // Add an overlay for the cropping
+  for(let ii=0; ii<mv.views.length; ii++) {
+    $(mv.views[ii].elem).find('.wrap')
+      .append(`<div class='overlay' id='overlay${ii}'>`);
+    (function(i) {
+      MUI.crop(`#overlay${i}`, (box) => { updateCropBoxFromOverlay(mv.views[i], box); });
+    }(ii));
+  }
+  updateOverlaysFromCropBox();
+
+  // print transformation matrix
+  printInfo();
+
+  $('span').show();
+  $('#tools, #saveNifti, #loadSelection, #saveSelection, #loadMatrix, #appendMatrix, #saveMatrix, #resetMatrix, #info').show();
+  $('#buttons').removeClass('init');
+  $('#loadNifti').removeClass('mui-no-border');
+}
+
+/**
+ * Start Reorient from an MRI file path
+ * @param {string} path Local path to MRI file
+ */
+async function initWithPath(path) {
+  _initCropBox();
+  _newMRIViewer({path});
+  try {
+    await _display();
+  } catch(err) {
+    throw new Error(err);
+  }
+  console.log("globals.mv.mri", globals.mv.mri);
+}
+
+/**
+ * Start Reorient from a File object
+ * @param {object} file File object
+ */
+async function init(file) {
+  _initCropBox();
+  _newMRIViewer({file: file});
+  try {
+    await _display();
+  } catch(err) {
+    throw new Error(err);
+  }
+}
+
+function selectTool(option) {
+  globals.selectedTool = option;
+  if(globals.selectedTool === 'Select') {
     $('.overlay').show();
   } else {
     $('.overlay').hide();
   }
-});
-MUI.push($('#loadNifti'), loadNifti);
-MUI.push($('#saveNifti'), saveNifti);
-MUI.push($('#loadMatrix'), loadMatrix);
-MUI.push($('#appendMatrix'), appendMatrix);
-MUI.push($('#saveMatrix'), saveMatrix);
-MUI.push($('#loadSelection'), loadSelection);
-MUI.push($('#saveSelection'), saveSelection);
-MUI.push($('#resetMatrix'), resetMatrix);
-
-/*
-//
-//    3D render
-//
-var    R,S,C,T,M;
-function newVector(vec) {
-    return new THREE.Vector3(vec[0],vec[1],vec[2])
-}
-function initRenderer(mat) {
-    R = new THREE.WebGLRenderer({canvas:document.getElementById('3d')});
-    var w=300, h=300;
-    R.setSize(w,h);
-    R.setClearColor(new THREE.Color( 0xffffff ));
-    S = new THREE.Scene();
-//        C = new THREE.PerspectiveCamera( 50, w/h, 1, 2000);
-//        C.position.z = 1000;
-    C = new THREE.OrthographicCamera(-w,w,h,-h,-1e6,1e6);
-    C.position.y=20000;
-    C.lookAt(new THREE.Vector3(0,0,0));
-    C.up=new THREE.Vector3(0,0,1);
-    S.add(C);
-    T = new THREE.TrackballControls(C,R.domElement);
-
-    // draw a box with lines
-    // draw axes
-    var line_r = new THREE.LineBasicMaterial({color: 0xff0000, linewidth: 2});
-    var line_g = new THREE.LineBasicMaterial({color: 0x00ff00, linewidth: 2});
-    var line_b = new THREE.LineBasicMaterial({color: 0x0000ff, linewidth: 2});
-    var line_x = new THREE.Geometry();
-    var line_y = new THREE.Geometry();
-    var line_z = new THREE.Geometry();
-    line_x.vertices.push( newVector(mv.mri.multMatVec(mat,[0,0,0])), newVector(mv.mri.multMatVec(mat,[1,0,0])));
-    S.add( new THREE.Line( line_x, line_r ) );
-    line_y.vertices.push( newVector(mv.mri.multMatVec(mat,[0,0,0])), newVector(mv.mri.multMatVec(mat,[0,1,0])));
-    S.add( new THREE.Line( line_y, line_g ) );
-    line_z.vertices.push( newVector(mv.mri.multMatVec(mat,[0,0,0])), newVector(mv.mri.multMatVec(mat,[0,0,1])));
-    S.add( new THREE.Line( line_z, line_b ) );
-    // end: axes
-    // draw outline
-    var line_w = new THREE.LineBasicMaterial({color: 0xcfcfcf, linewidth: 1});
-    var line_o = new THREE.Geometry();
-    line_o.vertices.push(...[
-        [1,1,1], [1,0,1], [1,0,0], [1,1,0],
-        [1,1,1], [0,1,1], [0,0,1], [1,0,1]
-     ].map(function(v){return newVector(mv.mri.multMatVec(mat,v));}));
-    S.add( new THREE.Line( line_o, line_w ) );
-    var line_o = new THREE.Geometry();
-    line_o.vertices.push(...[
-        [1,1,0], [0,1,0], [0,1,1]
-     ].map(function(v){return newVector(mv.mri.multMatVec(mat,v));}));
-    S.add( new THREE.Line( line_o, line_w ) );
-    // end: draw outline
-
-    // update dimensions
-    $('#minx').text(-10);
-    $('#maxx').text(10);
-    $('#miny').text(-10);
-    $('#maxy').text(-10);
-    $('#3d').css('border','thin solid black');
 }
 
-function screenXY(x,y,z) {
-    var vector = new THREE.Vector3(x,y,z);
-    var canvas = R.domElement;
+/**
+ * Connect UI elements to functions
+ * @param {object} MUI Reference to UI widgets
+ */
+function initUI(MUI) {
+  // Initialise UI
+  MUI.chose($('#tools'), selectTool);
+  MUI.push($('#loadNifti'), loadNifti);
+  MUI.push($('#saveNifti'), saveNifti);
+  MUI.push($('#loadMatrix'), loadMatrix);
+  MUI.push($('#appendMatrix'), appendMatrix);
+  MUI.push($('#saveMatrix'), saveMatrix);
+  MUI.push($('#loadSelection'), loadSelection);
+  MUI.push($('#saveSelection'), saveSelection);
+  MUI.push($('#resetMatrix'), resetMatrix);
 
-    // map to normalized device coordinate space
-    vector.project(C);
-
-    // map to 2D screen space
-    return {
-        x: Math.round( (   vector.x + 1 ) * canvas.width  / 2 ),
-        y: Math.round( ( - vector.y + 1 ) * canvas.height / 2 )
-    }
+  // selectTool("Select");
 }
-
-function render() {
-    R.render(S,C);
-    T.update();
-}
-function animate(mat) {
-    requestAnimationFrame(function(){animate(mat)});
-    render();
-
-    var p;
-    var o=[R.domElement.offsetLeft,R.domElement.offsetTop];
-    var d=[R.domElement.width,R.domElement.height];
-    var x=mv.mri.multMatVec(mat,[1,0,0])
-    var y=mv.mri.multMatVec(mat,[0,1,0])
-    var z=mv.mri.multMatVec(mat,[0,0,1])
-    p=screenXY(x[0],x[1],x[2]);
-    $("#x").css({left:p.x+o[0], top:p.y+o[1]});
-    p=screenXY(y[0],y[1],y[2]);
-    $("#y").css({left:p.x+o[0], top:p.y+o[1]});
-    p=screenXY(z[0],z[1],z[2]);
-    $("#z").css({left:p.x+o[0], top:p.y+o[1]});
-
-    $('#minx').css({left:o[0],      top:o[1]+d[1]});
-    $('#maxx').css({left:o[0]+d[0], top:o[1]+d[1]});
-    $('#miny').css({left:o[0],      top:o[1]+d[1]});
-    $('#maxy').css({left:o[0],      top:o[1]});
-}
-*/
