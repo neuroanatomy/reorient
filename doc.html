@@ -7,6 +7,9 @@
     sizes="any"
     href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Ccircle cx='5' cy='5' r='5' fill='grey'/%3E%3C/svg%3E"
    >
+   <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@200&family=VT323&display=swap" rel="stylesheet">
+   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@1,100&family=VT323&display=swap" rel="stylesheet">
+   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
 
    <style>
     #menu {
@@ -32,12 +35,21 @@
       font-family: "Roboto Mono", monospace;
       font-size: 14px;
       font-weight: 100;
+      line-height: 1.5rem;
+      text-indent: -0.5rem;
       color: white;
       text-align: left;
     }
-    h1{
+    h1 {
       font-family: "Roboto Mono", monospace;
       font-weight: 500;
+    }
+    p {
+      margin-top: 1.5rem;
+    }
+    code {
+      font-family: "Source Code Pro", monospace;
+      /* font-family: 'VT323', monospace; */
     }
     img.button {
       width: 0.9rem;
@@ -83,34 +95,46 @@
       <div class="doc">
         <h1>Documentation</h1>
         <p>
-          <b>Load & navigate data.</b> To load your data, simply drag and drop your nifti volume onto the reorient box. Your MRI will appear in a stereotaxic viewer. (Note: Only .nii.gz can be loaded at this time.) Navigate through slices using the sliders below each viewer.
+          <b>Load & navigate data.</b> To load your data, simply drag and drop your nifti volume (.nii.gz or .nii) onto the upload box. Your MRI will appear in a stereotaxic viewer. Navigate through the slices using the sliders below each viewer.
         </p>
         <p>
-          <b>Translation.</b> Click into the viewer and drag your volume to the desired position. The 3 viewers are synchronised and updated in real-time as is the matrix display in the left panel. The translate tool is selected by default when the data has been loaded.
+          <b>Translation.</b> Click into the viewer and drag your volume to the desired position. The 3 viewers are synchronised and updated in real-time as are the matrices displayed in the left panel. The translate tool is selected by default when the data has been loaded.
         </p>
         <p>
-          <b>Rotation.</b> Select the Rotate tool in the left panel, and then drag your volume clockwise or counterclockwise into the desired position. The 3 viewers are synchronised and updated in real-time as is the matrix in the left panel.
+          <b>Rotation.</b> Select the Rotate tool in the left panel, and then drag your volume clockwise or counterclockwise into the desired position. The 3 viewers are synchronised and updated in real-time as are the matrices.
         </p>
         <p>
-          <b>Cropping.</b> Click the Select tool in the left panel and drag the 4 boundaries of the selection box to enclose the desired part of the image.
+          <b>Cropping.</b> Click the Select tool in the left panel and drag the 4 boundaries of the selection box to enclose the desired part of the image. Note: The selection box is very small by default. An alert will remind you in case you forgot to adjust it.
         </p>
         <p>
-          <b>Saving.</b> Please save the rotation matrix and the selection box together with your reoriented nifti volume for a fully reproducible workflow.<br />
-          <p2 style="font-weight: 400;">Save Rotation Matrix</p2> saves the affine matrix of the current MRI to a text file.<br />
-          <p2 style="font-weight: 400;">Save Selection Box</p2> saves the current selection to a text file.<br/>
-          <p2 style="font-weight: 400;">Save Nifti</p2> saves the transformed version of the current MRI in nifti format. Depending on the size of your volume, the save may take a moment without printing anything on screen. Patience 🙃
+          <b>Saving.</b> Save the rotation matrix and the selection box together with your reoriented nifti volume for a fully reproducible workflow.<br />
+          <p2 style="font-weight: 400;">Save Rotation Matrix</p2> saves the affine matrix converting voxel indices to world coordinates of the current MRI to a text file. The matrix is saved in standard .mat format with 4 rows of 4 numbers separated by spaces and can easily be read using python or other languages. It can be used with <a href="https://github.com/neuroanatomy/reorient/blob/master/reorient.py" style="color:white;">reorient.py</a> to reproduce the reoriented nifti volume in an offline workflow.<br />
+          <p2 style="font-weight: 400;">Save Selection Box</p2> saves the current selection to a text file. The first row in the selection format represents the coordinates of the "minimum" corner, the second row the coordinates of the "maximum" corner. It can be used with <a href="https://github.com/neuroanatomy/reorient/blob/master/reorient.py" style="color:white;">reorient.py</a> to reproduce the reoriented nifti volume in an offline workflow.<br/>
+          <p2 style="font-weight: 400;">Save Nifti</p2> saves the transformed version of the current MRI in nifti format. The voxels are isotropic, and set to the median of the 3 voxel dimensions. Depending on the size of your volume, the save may take a moment without printing anything on screen. Patience 🙃
         </p>
         <p>
-          <p2 style="font-weight: 400;">Load Selection Box.</p2> Load a volume selection from a text file. It will update the crop box boundaries which are only displayed when the Selection tool is selected.
+          <p2 style="font-weight: 400;">Load Selection Box.</p2> Load the volume selection from a text file. It will update the crop box boundaries (which are only displayed when the Selection tool is selected).
         </p>
         <p>
-          <b>Load new rotation matrix.</b> Load an affine matrix from a text file, and replace the one in the current MRI.
+          <b>Load new rotation matrix.</b> Load an affine matrix from a text file, and replace the original_matrix in the current MRI by the loaded matrix.
         </p>
         <p>
-          <b>Append rotation matrix.</b> Load an affine matrix from a text file and append it to the one in the current MRI.
+          <b>Append rotation matrix.</b> Load an affine matrix from a text file and append it to the one in the current MRI, i.e. change the original matrix into original matrix * loaded matrix.
         </p>
         <p>
           <b>Reset matrix.</b> Reset the MRI affine matrix to its original value.<br />
+        </p>
+        <p>
+          <b>Reset selection.</b> Reset the selection box to its default size (small box at center).<br />
+        </p>
+        <p>
+          <b>Load new MRI file.</b> Simply reload the webpage to start working with a new MRI.<br />
+        </p>
+        <p>
+          <b>Reproduce the workflow offline.</b> Once you downloaded the rotation matrix and selection box, you will be able to reproduce the reoriented cropped MRI volume using the <a href="https://github.com/neuroanatomy/reorient/blob/master/reorient.py" style="color:white;">reorient.py</a> script. It will take the source MRI, the reorient.mat file, and the selection.txt file to produce the reoriented volume, as in <br /><code style="font-family: 'Share Tech Mono';line-height:2.1">python reorient.py input_nifti rotation_file selection_file output_nifti</code>.<br />
+        </p>
+        <p>
+          <b>How to cite reorient.</b> Heuer, K and Toro, R (2020). Reorient: A Web tool for reorienting and cropping MRI data. Journal of Open Source Software, 5(53), 2670. <a href="https://doi.org/10.21105/joss.02670" style="color:white">https://doi.org/10.21105/joss.02670.</a><br />🥰 Thank you. <br />
         </p>
         <img style="max-width:700px;padding-top:30px;padding-bottom:30px;" src="https://raw.githubusercontent.com/neuroanatomy/reorient/master/img/reorient-180mm_HeuerToro_web.png" alt=""/>
       </div>
