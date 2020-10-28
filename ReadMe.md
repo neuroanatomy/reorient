@@ -16,5 +16,10 @@ Reorient (https://neuroanatomy.github.io/reorient) is an open source Web applica
 
 Reorient complements existing tools by providing an intuitive approach for manual image reorientation and all components for a fully reproducible workflow. We have used it extensively to reorient many different vertebrate species, including to reorient and crop data from 60 different primate species. Even for completely arbitrarily oriented brains, with different data encodings and anisotropic voxels, the tool is intuitive to use and provides a fast and precise method to include manual alignment in a reproducible workflow.
 
+### Doc
+A description of a typical workflow can be found in the [doc](https://neuroanatomy.github.io/reorient/doc.html).
 
+### How to cite reorient
+Heuer, K and Toro, R (2020). Reorient: A Web tool for reorienting and cropping MRI data. Journal of Open Source Software, 5(53), 2670. [https://doi.org/10.21105/joss.02670](https://doi.org/10.21105/joss.02670).  
+🥰 Thank you.
 
