@@ -5,6 +5,8 @@ A Web tool for reorienting and cropping MRI data.
 Roberto Toro & Katja Heuer, January 2018
 
 [![CircleCI](https://circleci.com/gh/neuroanatomy/reorient.svg?style=shield)](https://circleci.com/gh/neuroanatomy/reorient)
+[![DOI](https://zenodo.org/badge/135712498.svg)](https://zenodo.org/badge/latestdoi/135712498)
+
 
 
 <img width="1260" alt="screenshot" src="https://raw.githubusercontent.com/neuroanatomy/reorient/master/img/reorient.png">
