@@ -6,6 +6,7 @@ Roberto Toro & Katja Heuer, January 2018
 
 [![CircleCI](https://circleci.com/gh/neuroanatomy/reorient.svg?style=shield)](https://circleci.com/gh/neuroanatomy/reorient)
 [![DOI](https://zenodo.org/badge/135712498.svg)](https://zenodo.org/badge/latestdoi/135712498)
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.02670/status.svg)](https://doi.org/10.21105/joss.02670)
 
 
 
@@ -22,6 +23,6 @@ Reorient complements existing tools by providing an intuitive approach for manua
 A description of a typical workflow can be found in the [doc](https://neuroanatomy.github.io/reorient/doc.html).
 
 ### How to cite reorient
-Heuer, K and Toro, R (2020). Reorient: A Web tool for reorienting and cropping MRI data. Journal of Open Source Software, 5(53), 2670. [https://doi.org/10.21105/joss.02670](https://doi.org/10.21105/joss.02670).  
+Heuer, K, & Toro, R (2020). Reorient: A Web tool for reorienting and cropping MRI data. Journal of Open Source Software, 5(53), 2670. [https://doi.org/10.21105/joss.02670](https://doi.org/10.21105/joss.02670).  
 🥰 Thank you.
 
